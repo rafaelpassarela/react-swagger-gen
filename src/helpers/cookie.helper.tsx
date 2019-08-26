@@ -6,9 +6,10 @@ class CookieStorage {
 	private readonly C_USER: string = 'user';
 
 	private set(name: string, value: any) {
-		let date = new Date();
-		date.setUTCDate(date.getUTCDate() + 1);
-		this.cookie.set(name, value, { path: '/', expires: date });
+		// let date = new Date();
+		// date.setUTCDate(date.getUTCDate() + 1);
+		// this.cookie.set(name, value, { path: '/', expires: date });
+		this.cookie.set(name, value, { path: '/' });
 	}
 
 	private get(name: string) {
@@ -37,6 +38,20 @@ class CookieStorage {
 
 	public getValue(name: string, defaultValue?: any) : any {
 		return this.get(name) || defaultValue;
+	}
+
+	public setStorage(name: string, value: string, isSession?: boolean) {
+		if (isSession === true)
+			sessionStorage.setItem(name, value);
+		else
+			localStorage.setItem(name, value);
+	}
+
+	public getStorage(name: string, defaultValue: string, isSession?: boolean) : string {
+		if (isSession === true)
+			return sessionStorage.getItem(name) || defaultValue;
+
+		return localStorage.getItem(name) || defaultValue;
 	}
 
 }

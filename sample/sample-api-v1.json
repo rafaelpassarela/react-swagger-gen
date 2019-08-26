@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "version": "v1",
-    "title": "Sample Api by MrRafael.ca from TXT"
+    "title": "Sample Api by MrRafael.ca from JSON"
   },
   "host": "localhost:57431",
   "schemes": [

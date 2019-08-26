@@ -3,6 +3,7 @@ import BaseViewComponent, { IBaseViewProps, IBaseViewState } from '../components
 import { fileUtils, IFileModel } from '../helpers/file.utils.helper';
 import { FormItem, SwaggerValues } from '../swagger/swagger.model';
 import { formItemList } from '../swagger/swagger.form.config';
+import SwaggerEngine from '../swagger/swagger.engine';
 import Loading from '../components/loading.component';
 import LoadingSmall from '../components/loading.small.component';
 
@@ -32,23 +33,34 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 			disabled: false,
 			loadMessage: 'Getting values...',
 			swagger: {
-				data: '',
-				devURL: cookieStorage.getValue('devURL', ''),
-				prodURL: cookieStorage.getValue('prodURL', ''),
-				baseApi: cookieStorage.getValue('baseApi', ''),
+				data: cookieStorage.getStorage("data", ""),
+				devURL: cookieStorage.getStorage("devURL", ""),
+				prodURL: cookieStorage.getStorage("prodURL", ""),
+				baseApi: cookieStorage.getStorage("baseApi", ""),
 			} as SwaggerValues
 		};
 
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleChange = this.handleChange.bind(this);
+		this.handleClick = this.handleClick.bind(this);
+		this.doGenerateFiles = this.doGenerateFiles.bind(this);
+		this.releaseInterval = this.releaseInterval.bind(this);
 		this.getForm = this.getForm.bind(this);
 	}
 
 	private imgSwagger : string = require('../img/swagger-logo.png');
 	private canChangeObjectValues : boolean = true;
+	private swaggerEngine : SwaggerEngine = new SwaggerEngine();
+	private generateIntervalID : number = -1;
 
 	protected getPageTitle(): string {
 		return 'React for Swagger';
+	}
+
+	protected releaseInterval() {
+		if (this.generateIntervalID != -1) {
+			window.clearInterval(this.generateIntervalID);
+		}
 	}
 
 	componentDidMount() {
@@ -57,10 +69,41 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 		});
 	}
 
-	handleClick = () => {
+	componentWillUnmount() {
+		this.releaseInterval();
+	}	
+
+	handleClick = (e: any) => {
+		// remove the event from event list queue
+		e.persist();
+
 		this.setState({
 			disabled: true
-		})
+		});
+
+		if (this.generateIntervalID == -1) {
+			this.generateIntervalID = window.setInterval(() => {
+				this.doGenerateFiles();	
+			}, 100); // every minute
+		}
+	}
+
+	doGenerateFiles = () => {
+		this.swaggerEngine.generateObjects(this.state.swagger)
+			.then((res: string) => {
+				this.setState({disabled: false});
+			})
+			.catch((res: string) => {
+				console.error(res);
+				this.setState({disabled: false});
+			});
+
+		try {
+			this.releaseInterval();
+		} 
+		finally {
+			this.generateIntervalID = -1;
+		}
 	}
 
 	handleSubmit(event: any) {
@@ -84,7 +127,7 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 					updateObj = false;
 					if (event.target.files.length > 0) {
 						obj = this.state.swagger;
-						obj['data'] = '';					
+						obj['data'] = '';
 						this.setState({
 							loadMessage: 'Please wait...',
 							swagger: obj
@@ -96,6 +139,7 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 								swagger: obj,
 								loadMessage: ''
 							});
+							cookieStorage.setStorage('data', val.data as string);
 						});
 					}
 					break;
@@ -106,15 +150,17 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 			}
 
 			if (updateObj) {
-				if (event.target.type !== "textarea") {
-					cookieStorage.setValue(prop, value);
-				}				
 				obj = this.state.swagger;
 				obj[prop] = value;
 				this.setState({
 					swagger: obj
 				} as IHomeState);
+
+				// if (event.target.type == "textarea")
+				// 	value = myCrypto.encrypt(value);
+				cookieStorage.setStorage(prop, value);
 			}
+			
 		} else {
 			this.canChangeObjectValues = true;
 		}
@@ -206,7 +252,7 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 					<Image src={this.imgSwagger} style={{borderRadius: 10}} fluid />
 				</div>
 
-				{this.getForm()} 				
+				{this.getForm()}
 			</div>
 		);
 	}

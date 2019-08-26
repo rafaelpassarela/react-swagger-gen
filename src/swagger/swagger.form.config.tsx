@@ -3,7 +3,7 @@ import { FormItem } from './swagger.model';
 export const formItemList: Array<FormItem> = [
 	{
 		name: "jsonFile",
-		caption: "Load the Swagger.json",
+		caption: "Load the Swagger file",
 		type: "file",
 		extra: ".json,.txt",
 		required: false,
