@@ -1,12 +1,6 @@
 import { ApiConfig } from './api-config';
 import { ApiMode, ApiCache, ApiCredentials, ApiMethod, ApiRedirect, ApiDataCallback, ApiErrorCallback } from './api-types';
 
-// import { Values } from './api-models';
-
-// interface IApi<T>{
-// 	getPath() : string;
-// }
-
 // More about the Fetch default API
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 // https://developer.mozilla.org/en-US/docs/Web/API/Request/mode

@@ -13,3 +13,22 @@ export class SwaggerValues {
 	prodURL: string = '';
 	baseApi: string = '';
 }
+
+export class SwaggerDefField {
+	name: string;
+	type: string;
+	required: boolean;
+}
+
+export class SwaggerDefinition {
+	name: string;
+	fields: Array<SwaggerDefField> = new Array<SwaggerDefField>();
+}
+
+export class SwaggerInfo {
+	swagger: string;
+	host: string;
+	title: string;
+	version: string;
+	definitions: Array<SwaggerDefinition> = new Array<SwaggerDefinition>();
+}

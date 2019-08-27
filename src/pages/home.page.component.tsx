@@ -14,7 +14,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 // import { Link } from 'react-router-dom';
-// import { toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { cookieStorage } from '../helpers/cookie.helper';
 import '../inc/pageframe.css';
 
@@ -91,10 +91,11 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 	doGenerateFiles = () => {
 		this.swaggerEngine.generateObjects(this.state.swagger)
 			.then((res: string) => {
+				toast.success(res);
 				this.setState({disabled: false});
 			})
 			.catch((res: string) => {
-				console.error(res);
+				toast.error(res);
 				this.setState({disabled: false});
 			});
 
