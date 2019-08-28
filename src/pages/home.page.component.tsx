@@ -96,6 +96,7 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 			})
 			.catch((res: string) => {
 				toast.error(res);
+				console.error(res);
 				this.setState({disabled: false});
 			});
 

@@ -1,4 +1,5 @@
 import { swaggerHelper } from './swagger.helper';
+import { swaggerFileMaker } from './swagger.file.maker';
 import { 
 	SwaggerValues,
 	SwaggerInfo,
@@ -32,8 +33,9 @@ class SwaggerEngine {
 		this.info.version = swaggerHelper.getValue(objData, ['info', 'version']);
 
 		this.getDefinitionList(objData);
+		// getPaths
 
-		console.log(this.info);
+		swaggerFileMaker.generateFiles(this.info);
 	}
 
 	private getDefinitionList(objData: Object) {

@@ -20,6 +20,21 @@ class SwaggerHelper {
 		}		
 	}
 
+	public strReplaceAll(value: string, search: string, replacement: string) : string {
+    	// var newVal = value.replace(new RegExp(search, 'g'), replacement);
+    	var newVal = value.split(search).join(replacement);
+    	return newVal;
+	};
+
+	public strRemoveAll(value: string, delValues: string) : string {
+		var newValue = value;
+		for (var i = 0; i < delValues.length; i++) {
+			newValue = this.strReplaceAll(newValue, delValues[i], '');
+		}
+
+		return newValue;
+	}
+
 }
 
 export const swaggerHelper = new SwaggerHelper();

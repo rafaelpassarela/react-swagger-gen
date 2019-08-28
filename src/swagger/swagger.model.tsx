@@ -14,6 +14,11 @@ export class SwaggerValues {
 	baseApi: string = '';
 }
 
+export class SwaggerFile {
+	name: string;
+	fileData: string;
+}
+
 export class SwaggerDefField {
 	name: string;
 	type: string;

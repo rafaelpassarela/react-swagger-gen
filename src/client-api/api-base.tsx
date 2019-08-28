@@ -1,3 +1,13 @@
+/********************************************************************
+*            MrRafael.ca - Swagger Generator for React              *
+* Sample Api by MrRafael.ca - v1                                    *
+* This client Api was generated on 28/08/2019 15:59:20              *
+*                                          Do not change this file! *
+*                                                                   *
+* Optimized for use as part of the project                          *
+* https://github.com/rafaelpassarela/empty_project_mysql_migrations *
+********************************************************************/
+ 
 import { ApiConfig } from './api-config';
 import { ApiMode, ApiCache, ApiCredentials, ApiMethod, ApiRedirect, ApiDataCallback, ApiErrorCallback } from './api-types';
 
@@ -11,12 +21,12 @@ class ApiBase<T> { //implements IApi<Values>{
 	desenvMode : number = -1;
 
 	private translatePath(endPath?: string): string {
-		return ApiConfig.URL + this.getPath() + ((endPath != undefined) ? endPath : '');
+		return ApiConfig.URL + this.getPath() + ((endPath != undefined) ? endPath : "");
 	}
 
 	protected isDesenvMode() : boolean {
 		if (this.desenvMode == -1) {
-			this.desenvMode = ((!process.env.NODE_ENV || process.env.NODE_ENV === 'development') ? 1 : 0);
+			this.desenvMode = ((!process.env.NODE_ENV || process.env.NODE_ENV === "development") ? 1 : 0);
 		}
 
 		return this.desenvMode == 1;
@@ -59,7 +69,7 @@ class ApiBase<T> { //implements IApi<Values>{
 		dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, bodyData?: T) {
 
 		if (this.isDesenvMode()) {
-			console.log(requestMethod + ' -> ' + url);
+			console.log(requestMethod + " -> " + url);
 		}
 
 		return fetch(url, {
@@ -68,7 +78,7 @@ class ApiBase<T> { //implements IApi<Values>{
 			cache: this.getCache(),
 			credentials: this.getCredentials(),
 			headers: {
-				Accept: 'application/json',
+				Accept: "application/json",
 				"Content-Type": 'application/json; charset=utf-8',
 				"Access-Control-Allow-Origin": '*'
 			},
@@ -84,7 +94,7 @@ class ApiBase<T> { //implements IApi<Values>{
 						return response.text();
 					}
 				} else {
-					throw new Error(response.status + ' - ' + response.statusText);
+					throw new Error(response.status + " - " + response.statusText);
 				}
 			})
 			.then(data => dataCallback(data))
