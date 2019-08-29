@@ -14,9 +14,15 @@ class SwaggerEngine {
 	public generateObjects(data: SwaggerValues) : Promise<string> {
 		return new Promise((resolve, reject) => {
 
+			this.info.config.baseApi = data.baseApi;
+			this.info.config.devURL = data.devURL;
+			this.info.config.prodURL = data.prodURL;
+
 			try {
 				let objData = JSON.parse(data.data);
 				this.parseSwaggerObject(objData);
+
+				console.log(this.info);
 
 				return resolve('The files were successfully generated. Download should start soon.');
 			} catch(e) {
@@ -46,6 +52,7 @@ class SwaggerEngine {
 
 		list.map( (item: string) => {
 			let fieldDefs = new Array<SwaggerDefField>();
+			let extendBase: boolean = false;
 
 			tmpObject = swaggerHelper.getValue(objData, ['definitions', item]);
 			requireList = swaggerHelper.getValue(tmpObject, 'required');
@@ -57,12 +64,19 @@ class SwaggerEngine {
 				field.type = swaggerHelper.getValue(tmpObject, ['properties', propName, 'type'] );
 				field.required = (requireList == undefined) ? false : requireList.indexOf(propName) > -1;
 				fieldDefs.push(field);
+
+				extendBase = (extendBase || field.isIdField())
 			});
 
 			this.info.definitions.push({
 					name: item,
-					fields: fieldDefs 
+					fields: fieldDefs,
+					extendsBase: extendBase
 				} as SwaggerDefinition);
+		});
+		// order the definitions list
+		this.info.definitions.sort( (a: SwaggerDefinition, b: SwaggerDefinition): number => {
+			return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);
 		});
 	}
 }

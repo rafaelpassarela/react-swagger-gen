@@ -1,4 +1,7 @@
-import { SwaggerFile } from './swagger.model';
+import { 
+	SwaggerFile, 
+	BaseSwaggerValues 
+} from './swagger.model';
 
 const newLine: string = '\n';
 
@@ -22,7 +25,7 @@ class SwaggerFileRepo {
 		this.fileHeader = header;
 	}
 
-	public makeTypes() : SwaggerFile {
+	public makeTypesFile() : SwaggerFile {
 		let file = new Array<string>();
 
 		file.push('export type ApiDataCallback = (data: any) => any;');
@@ -69,11 +72,19 @@ class SwaggerFileRepo {
 		return this.doMakeFile('api-types.tsx', file);
 	}
 
-	public makeApiBase() : SwaggerFile {
+	public makeApiBaseFile() : SwaggerFile {
 		let file = new Array<string>();
 
 		file.push('import { ApiConfig } from \'./api-config\';');
-		file.push('import { ApiMode, ApiCache, ApiCredentials, ApiMethod, ApiRedirect, ApiDataCallback, ApiErrorCallback } from \'./api-types\';');
+		file.push('import { ');
+		file.push('	ApiMode,');
+		file.push('	ApiCache,');
+		file.push('	ApiCredentials,');
+		file.push('	ApiMethod,');
+		file.push('	ApiRedirect,');
+		file.push('	ApiDataCallback,');
+		file.push('	ApiErrorCallback ');
+		file.push('} from \'./api-types\';');
 		file.push('');
 		file.push('// More about the Fetch default API');
 		file.push('// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch');
@@ -170,6 +181,21 @@ class SwaggerFileRepo {
 		file.push('export default ApiBase;');
 
 		return this.doMakeFile('api-base.tsx', file);
+	}
+
+	public makeConfigFile(config: BaseSwaggerValues) : SwaggerFile {
+		let file = new Array<string>();
+
+		file.push('const DEV_URL = "http://localhost:57431"');
+		file.push('const PROD_URL= "http://mrrafael.ca:1234"');
+		file.push('const BASE_API = "/api/"');
+		file.push('');
+		file.push('export const ApiConfig = {');
+		file.push('	BasePath: BASE_API,');
+		file.push('	URL: ((!process.env.NODE_ENV || process.env.NODE_ENV === "development") ? DEV_URL : PROD_URL) + BASE_API');
+		file.push('}');
+
+		return this.doMakeFile('api-config.tsx', file);
 	}
 
 }

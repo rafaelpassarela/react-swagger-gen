@@ -1,5 +1,3 @@
-// import * as React from 'react';
-
 import { 
 	SwaggerInfo,
 	SwaggerFile
@@ -47,8 +45,9 @@ class SwaggerFileMaker {
 
 		this.apiName = data.title;
 		// generate the Api Files
-		this.files.push( swaggerFileRepo.makeApiBase() );
-		this.files.push( swaggerFileRepo.makeTypes() );
+		this.files.push( swaggerFileRepo.makeApiBaseFile() );
+		this.files.push( swaggerFileRepo.makeTypesFile() );
+		this.files.push( swaggerFileRepo.makeConfigFile(data.config) );
 
 		// generate the Zip file
 		this.doMakeZip();

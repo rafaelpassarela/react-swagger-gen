@@ -7,11 +7,14 @@ export class FormItem {
 	extra: string | number;
 }
 
-export class SwaggerValues {
-	data: string = '';
+export class BaseSwaggerValues {
 	devURL: string = '';
 	prodURL: string = '';
-	baseApi: string = '';
+	baseApi: string = '';	
+}
+
+export class SwaggerValues extends BaseSwaggerValues {
+	data: string = '';
 }
 
 export class SwaggerFile {
@@ -23,11 +26,17 @@ export class SwaggerDefField {
 	name: string;
 	type: string;
 	required: boolean;
+
+	public isIdField() : boolean {
+		return this.name.toUpperCase() === 'ID' 
+			&& this.type.toUpperCase() === 'INTEGER';
+	}
 }
 
 export class SwaggerDefinition {
 	name: string;
 	fields: Array<SwaggerDefField> = new Array<SwaggerDefField>();
+	extendsBase: boolean;
 }
 
 export class SwaggerInfo {
@@ -35,5 +44,6 @@ export class SwaggerInfo {
 	host: string;
 	title: string;
 	version: string;
+	config: BaseSwaggerValues = new BaseSwaggerValues();
 	definitions: Array<SwaggerDefinition> = new Array<SwaggerDefinition>();
 }

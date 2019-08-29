@@ -1,7 +1,7 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
 * Sample Api by MrRafael.ca - v1                                    *
-* This client Api was generated on 28/08/2019 15:59:20              *
+* This client Api was generated on 28/08/2019 16:47:14              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
@@ -9,7 +9,15 @@
 ********************************************************************/
  
 import { ApiConfig } from './api-config';
-import { ApiMode, ApiCache, ApiCredentials, ApiMethod, ApiRedirect, ApiDataCallback, ApiErrorCallback } from './api-types';
+import { 
+	ApiMode,
+	ApiCache,
+	ApiCredentials,
+	ApiMethod,
+	ApiRedirect,
+	ApiDataCallback,
+	ApiErrorCallback 
+} from './api-types';
 
 // More about the Fetch default API
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
