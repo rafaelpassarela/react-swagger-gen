@@ -25,11 +25,27 @@ export class SwaggerFile {
 export class SwaggerDefField {
 	name: string;
 	type: string;
+	subType: string; // for array or object type
 	required: boolean;
 
 	public isIdField() : boolean {
 		return this.name.toUpperCase() === 'ID' 
 			&& this.type.toUpperCase() === 'INTEGER';
+	}
+
+	public getType() : string {
+		switch (this.type.toLowerCase()) {
+			case "integer":
+				return "number";
+				break;
+			case "array":
+
+				return "Array<" + this.subType + ">";
+				break;
+			default:
+				return this.type;
+				break;
+		}
 	}
 }
 

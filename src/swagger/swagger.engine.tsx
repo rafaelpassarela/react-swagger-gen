@@ -50,9 +50,13 @@ class SwaggerEngine {
 		let propList: string[];
 		let requireList: string[];
 
+		// clear the definition list
+		this.info.definitions.splice(0, this.info.definitions.length);
+
 		list.map( (item: string) => {
 			let fieldDefs = new Array<SwaggerDefField>();
 			let extendBase: boolean = false;
+			let subItem: Object;
 
 			tmpObject = swaggerHelper.getValue(objData, ['definitions', item]);
 			requireList = swaggerHelper.getValue(tmpObject, 'required');
@@ -61,10 +65,22 @@ class SwaggerEngine {
 			propList.map( (propName: string) => {
 				let field = new SwaggerDefField();
 				field.name = propName;
-				field.type = swaggerHelper.getValue(tmpObject, ['properties', propName, 'type'] );
+				field.type = swaggerHelper.getValue(tmpObject, ['properties', propName, 'type']);
 				field.required = (requireList == undefined) ? false : requireList.indexOf(propName) > -1;
-				fieldDefs.push(field);
 
+				subItem = swaggerHelper.getValue(tmpObject, ['properties', propName, 'items']);
+				if (subItem != undefined) {
+					field.subType = swaggerHelper.getValue(subItem, ['type']);
+					// if no subType was found, search for class reference
+					if (field.subType === undefined) {
+						field.subType = swaggerHelper.getValue(subItem, ['$ref']);
+						if (field.subType.indexOf("#/definitions/") >= 0) {
+							field.subType = field.subType.substr(field.subType.lastIndexOf('/') + 1);
+						}
+					}
+				}
+
+				fieldDefs.push(field);
 				extendBase = (extendBase || field.isIdField())
 			});
 

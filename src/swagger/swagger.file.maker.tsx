@@ -48,6 +48,7 @@ class SwaggerFileMaker {
 		this.files.push( swaggerFileRepo.makeApiBaseFile() );
 		this.files.push( swaggerFileRepo.makeTypesFile() );
 		this.files.push( swaggerFileRepo.makeConfigFile(data.config) );
+		this.files.push( swaggerFileRepo.makeModelsFile(data.definitions) );
 
 		// generate the Zip file
 		this.doMakeZip();

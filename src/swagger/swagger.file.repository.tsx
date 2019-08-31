@@ -1,6 +1,8 @@
 import { 
 	SwaggerFile, 
-	BaseSwaggerValues 
+	BaseSwaggerValues,
+	SwaggerDefinition,
+	SwaggerDefField
 } from './swagger.model';
 
 const newLine: string = '\n';
@@ -196,6 +198,41 @@ class SwaggerFileRepo {
 		file.push('}');
 
 		return this.doMakeFile('api-config.tsx', file);
+	}
+
+	public makeModelsFile(definitions: Array<SwaggerDefinition>) : SwaggerFile {
+		let file = new Array<string>();
+		// check for the base model
+		if (definitions.filter( (item: SwaggerDefinition) => {return item.extendsBase === true}).length > 0) {
+			file.push('export class BaseModel {');
+			file.push('	Id: number;');
+			file.push('}');
+			file.push('');
+		}
+
+		definitions.map( (item: SwaggerDefinition) => {
+			if (item.extendsBase === true) {
+				file.push('export class ' + item.name + ' extends BaseModel {');
+			} else {
+				file.push('export class ' + item.name + ' {');
+			}
+
+			let line: string;
+			item.fields.map( (field: SwaggerDefField) => {
+				if (item.extendsBase != true || (item.extendsBase === true && field.name.toUpperCase() === 'ID')) {
+					line = ' 	' + field.name + ': ' + field.getType() + ';';
+
+					file.push(line);
+				}
+			});
+
+			file.push('}');
+			file.push('');
+		});
+
+		// file.push('');
+
+		return this.doMakeFile('api-models.tsx', file);
 	}
 
 }
