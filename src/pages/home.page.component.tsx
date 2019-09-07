@@ -158,8 +158,6 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 					swagger: obj
 				} as IHomeState);
 
-				// if (event.target.type == "textarea")
-				// 	value = myCrypto.encrypt(value);
 				cookieStorage.setStorage(prop, value);
 			}
 			

@@ -4,7 +4,9 @@ import {
 	SwaggerValues,
 	SwaggerInfo,
 	SwaggerDefField,
-	SwaggerDefinition
+	SwaggerDefinition,
+	SwaggerPath,
+	SwaggerPathAction
 } from './swagger.model';
 
 class SwaggerEngine {
@@ -33,25 +35,91 @@ class SwaggerEngine {
 	}
 
 	private parseSwaggerObject(objData: Object) {
+
+		this.info.resetLists();
+
 		this.info.host = swaggerHelper.getValue(objData, 'host');
 		this.info.swagger = swaggerHelper.getValue(objData, 'swagger');
 		this.info.title = swaggerHelper.getValue(objData, ['info', 'title']);
 		this.info.version = swaggerHelper.getValue(objData, ['info', 'version']);
 
 		this.getDefinitionList(objData);
-		// getPaths
+		this.getPathList(objData);
 
 		swaggerFileMaker.generateFiles(this.info);
 	}
+
+	private getPathIndexByName(name: string) {
+		for (var i = 0; i < this.info.paths.length; i++) {
+			if (this.info.paths[i].name == name) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private getPathList(objData: Object) {
+		let list = Object.getOwnPropertyNames(objData['paths']);
+		let tmpObject : Object;
+
+		let endPoints: string[];
+		let pathAction: SwaggerPathAction;
+		let pathIdx: number;
+
+		let pathObj: SwaggerPath;
+
+		list.map( (item: string) => {
+			pathAction = new SwaggerPathAction();
+			tmpObject = swaggerHelper.getValue(objData, ['paths', item]);
+
+			// /api/Values/{id} -> Values
+			pathAction.fullName = item;
+			console.log(pathAction.fullName);
+
+			item = item.replace(this.info.config.baseApi, '');
+			if (item.indexOf('/') >= 0) {
+				item = item.substring(0, item.indexOf('/'));
+			}
+
+			// locate or create a new path
+			pathIdx = this.getPathIndexByName(item);
+			if (pathIdx == -1) {
+				pathObj = new SwaggerPath();
+				pathObj.name = item;
+			} else {
+				pathObj = this.info.paths[pathIdx];
+			}
+
+			/* to do: each action have a list of endpoints:
+				Values
+					Values/
+						get
+						post
+						put
+					Values/{id}
+						get(id)
+						delete(id)
+			*/
+			pathObj.actions.push(pathAction);
+
+			// for each path, try to find all the relative actions
+			endPoints = Object.getOwnPropertyNames(tmpObject);
+			console.log(endPoints);
+
+			// update or add a new path
+			if (pathIdx == -1) {
+				this.info.paths.push(pathObj);
+			} else {
+				this.info.paths[pathIdx] = pathObj;
+			}
+		});
+	}	
 
 	private getDefinitionList(objData: Object) {
 		let list = Object.getOwnPropertyNames(objData['definitions']);
 		let tmpObject : Object;
 		let propList: string[];
 		let requireList: string[];
-
-		// clear the definition list
-		this.info.definitions.splice(0, this.info.definitions.length);
 
 		list.map( (item: string) => {
 			let fieldDefs = new Array<SwaggerDefField>();

@@ -55,6 +55,27 @@ export class SwaggerDefinition {
 	extendsBase: boolean;
 }
 
+export class SwaggerPathActionParam {
+	name: string;
+	type: string;
+	in: string;
+}
+
+export class SwaggerPathAction {
+	type: string;
+	actionName: string;
+	fullName: string;
+	params: Array<SwaggerPathActionParam> = new Array<SwaggerPathActionParam>();
+}
+
+export class SwaggerPath {
+	name: string;
+	actions: Array<SwaggerPathAction> = new Array<SwaggerPathAction>();
+}
+
+export class SwaggerPathList extends Array<SwaggerPath> {
+}
+
 export class SwaggerInfo {
 	swagger: string;
 	host: string;
@@ -62,4 +83,10 @@ export class SwaggerInfo {
 	version: string;
 	config: BaseSwaggerValues = new BaseSwaggerValues();
 	definitions: Array<SwaggerDefinition> = new Array<SwaggerDefinition>();
+	paths: SwaggerPathList = new SwaggerPathList();
+
+	public resetLists() {
+		this.definitions.splice(0, this.definitions.length);
+		this.paths.splice(0, this.paths.length);
+	}
 }
