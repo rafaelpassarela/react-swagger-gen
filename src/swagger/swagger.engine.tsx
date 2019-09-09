@@ -6,7 +6,9 @@ import {
 	SwaggerDefField,
 	SwaggerDefinition,
 	SwaggerPath,
-	SwaggerPathAction
+	SwaggerPathAction,
+	SwaggerPathActionParam,
+	OrigParamItem
 } from './swagger.model';
 
 class SwaggerEngine {
@@ -61,20 +63,18 @@ class SwaggerEngine {
 	private getPathList(objData: Object) {
 		let list = Object.getOwnPropertyNames(objData['paths']);
 		let tmpObject : Object;
-
 		let endPoints: string[];
-		let pathAction: SwaggerPathAction;
 		let pathIdx: number;
-
 		let pathObj: SwaggerPath;
+		let fullName: string;
 
 		list.map( (item: string) => {
-			pathAction = new SwaggerPathAction();
+			
 			tmpObject = swaggerHelper.getValue(objData, ['paths', item]);
 
 			// /api/Values/{id} -> Values
-			pathAction.fullName = item;
-			console.log(pathAction.fullName);
+			fullName = item;
+			console.log("Full Name: " + fullName);
 
 			item = item.replace(this.info.config.baseApi, '');
 			if (item.indexOf('/') >= 0) {
@@ -100,11 +100,18 @@ class SwaggerEngine {
 						get(id)
 						delete(id)
 			*/
-			pathObj.actions.push(pathAction);
 
-			// for each path, try to find all the relative actions
-			endPoints = Object.getOwnPropertyNames(tmpObject);
+			// for each path, try to find all the relative endpoints actions
+			endPoints = Object.getOwnPropertyNames(tmpObject); // "/api/Values/{id}"
 			console.log(endPoints);
+
+			endPoints.map( (epName: string) => {
+				console.log("EP Name: " + epName);
+				pathObj.actions.push(
+					this.generateEndPoint(swaggerHelper.getValue(tmpObject, [epName]), fullName, epName)
+				);
+				
+			});
 
 			// update or add a new path
 			if (pathIdx == -1) {
@@ -113,7 +120,31 @@ class SwaggerEngine {
 				this.info.paths[pathIdx] = pathObj;
 			}
 		});
-	}	
+	}
+
+	private generateEndPoint(data: Object, fullName: string, endPointName: string) : SwaggerPathAction {
+		let pathAction = new SwaggerPathAction();
+		pathAction.fullName = fullName;
+		pathAction.type = endPointName;
+		pathAction.actionName = swaggerHelper.getValue(data, ['operationId']);
+		pathAction.produces = swaggerHelper.getValue(data, ['produces']);
+		pathAction.consumes = swaggerHelper.getValue(data, ['consumes']);
+
+		let params = swaggerHelper.getValue(data, ['parameters']) as Array<OrigParamItem>;
+		params.map( (paramData: OrigParamItem) => {
+			// the header always have the auth. param
+			if (paramData.name != 'Authorization' && paramData.in != 'header') {
+				let param = new SwaggerPathActionParam();
+				param.inOut = "IN";
+				param.name = paramData.name;
+				param.location = paramData.in;
+
+				pathAction.params.push(param);
+			}
+		});
+
+		return pathAction;
+	}
 
 	private getDefinitionList(objData: Object) {
 		let list = Object.getOwnPropertyNames(objData['definitions']);

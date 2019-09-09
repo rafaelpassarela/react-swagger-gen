@@ -58,13 +58,16 @@ export class SwaggerDefinition {
 export class SwaggerPathActionParam {
 	name: string;
 	type: string;
-	in: string;
+	location: string;
+	inOut: "IN" | "OUT";
 }
 
 export class SwaggerPathAction {
 	type: string;
 	actionName: string;
 	fullName: string;
+	produces: string[];
+	consumes: string[];
 	params: Array<SwaggerPathActionParam> = new Array<SwaggerPathActionParam>();
 }
 
@@ -89,4 +92,14 @@ export class SwaggerInfo {
 		this.definitions.splice(0, this.definitions.length);
 		this.paths.splice(0, this.paths.length);
 	}
+}
+
+// ---------- Origin Param Model
+export class OrigParamItem {
+	in: string;
+	description: string;
+	name: string;
+	required: boolean;
+	schema: any;
+	type: string;
 }

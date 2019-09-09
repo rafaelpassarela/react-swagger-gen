@@ -51,10 +51,11 @@ class SwaggerFileMaker {
 		this.files.push( swaggerFileRepo.makeModelsFile(data.definitions) );
 
 		// generate the Zip file
-		this.doMakeZip();
+		// this.doMakeZip();
+		console.error('this.doMakeZip(); is commented');
 	}
 
-	private doMakeZip() {
+	public doMakeZip() {
 		let zip = new ReactZip();
 
 		this.files.map( (file: SwaggerFile) => {
@@ -70,7 +71,7 @@ class SwaggerFileMaker {
 				level: 5
 			}
 		});
-		promise.then( (value: Blob) => {			
+		promise.then( (value: Blob) => {
 			var zipFileName: string = 'client-api_' + this.apiName + '.zip';
 			zipFileName = swaggerHelper.strReplaceAll(zipFileName, ' ', '_');
 			zipFileName = swaggerHelper.strRemoveAll(zipFileName, "\"#@,;:<>*^|?\\/");
