@@ -37,14 +37,10 @@ export class SwaggerDefField {
 		switch (this.type.toLowerCase()) {
 			case "integer":
 				return "number";
-				break;
 			case "array":
-
 				return "Array<" + this.subType + ">";
-				break;
 			default:
 				return this.type;
-				break;
 		}
 	}
 }
@@ -60,6 +56,18 @@ export class SwaggerPathActionParam {
 	type: string;
 	location: string;
 	inOut: "IN" | "OUT";
+	required: boolean;
+
+	public getType() : string {
+		switch (this.type.toLowerCase()) {
+			case "integer":
+				return "number";
+			case "object":
+				return "Object";
+			default:
+				return this.type;
+		}
+	}	
 }
 
 export class SwaggerPathAction {

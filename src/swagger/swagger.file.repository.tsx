@@ -219,7 +219,7 @@ class SwaggerFileRepo {
 
 			let line: string;
 			item.fields.map( (field: SwaggerDefField) => {
-				if (item.extendsBase != true || (item.extendsBase === true && field.name.toUpperCase() === 'ID')) {
+				if (item.extendsBase != true || (item.extendsBase === true && field.name.toUpperCase() !== 'ID')) {
 					line = ' 	' + field.name + ': ' + field.getType() + ';';
 
 					file.push(line);

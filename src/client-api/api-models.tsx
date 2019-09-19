@@ -1,7 +1,7 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
 * Sample Api by MrRafael.ca - v1                                    *
-* This client Api was generated on 30/08/2019 12:03:45              *
+* This client Api was generated on 19/09/2019 18:28:30              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
@@ -83,6 +83,6 @@ export class UserLoginInfoViewModel {
 }
 
 export class Values extends BaseModel {
- 	Id: number;
+ 	Name: string;
 }
 

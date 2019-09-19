@@ -51,8 +51,8 @@ class SwaggerFileMaker {
 		this.files.push( swaggerFileRepo.makeModelsFile(data.definitions) );
 
 		// generate the Zip file
-		// this.doMakeZip();
-		console.error('this.doMakeZip(); is commented');
+		this.doMakeZip();
+		// console.error('this.doMakeZip(); is commented on swagger.file.maker');
 	}
 
 	public doMakeZip() {
