@@ -2,7 +2,8 @@ import {
 	SwaggerFile, 
 	BaseSwaggerValues,
 	SwaggerDefinition,
-	SwaggerDefField
+	SwaggerDefField,
+	SwaggerPath
 } from './swagger.model';
 
 const newLine: string = '\n';
@@ -28,7 +29,7 @@ class SwaggerFileRepo {
 	}
 
 	public makeTypesFile() : SwaggerFile {
-		let file = new Array<string>();
+		let file: string[] = [];
 
 		file.push('export type ApiDataCallback = (data: any) => any;');
 		file.push('export type ApiErrorCallback = (error: Error) => any;');
@@ -75,7 +76,7 @@ class SwaggerFileRepo {
 	}
 
 	public makeApiBaseFile() : SwaggerFile {
-		let file = new Array<string>();
+		let file: string[] = [];
 
 		file.push('import { ApiConfig } from \'./api-config\';');
 		file.push('import { ');
@@ -186,7 +187,7 @@ class SwaggerFileRepo {
 	}
 
 	public makeConfigFile(config: BaseSwaggerValues) : SwaggerFile {
-		let file = new Array<string>();
+		let file: string[] = [];
 
 		file.push('const DEV_URL = "http://localhost:57431"');
 		file.push('const PROD_URL= "http://mrrafael.ca:1234"');
@@ -201,7 +202,7 @@ class SwaggerFileRepo {
 	}
 
 	public makeModelsFile(definitions: Array<SwaggerDefinition>) : SwaggerFile {
-		let file = new Array<string>();
+		let file: string[] = [];
 		// check for the base model
 		if (definitions.filter( (item: SwaggerDefinition) => {return item.extendsBase === true}).length > 0) {
 			file.push('export class BaseModel {');
@@ -220,7 +221,7 @@ class SwaggerFileRepo {
 			let line: string;
 			item.fields.map( (field: SwaggerDefField) => {
 				if (item.extendsBase != true || (item.extendsBase === true && field.name.toUpperCase() !== 'ID')) {
-					line = ' 	' + field.name + ': ' + field.getType() + ';';
+					line = '	' + field.name + ': ' + field.getType() + ';';
 
 					file.push(line);
 				}
@@ -230,9 +231,14 @@ class SwaggerFileRepo {
 			file.push('');
 		});
 
-		// file.push('');
-
 		return this.doMakeFile('api-models.tsx', file);
+	}
+
+	public makePathFile(pathDefinition: SwaggerPath) : SwaggerFile {
+		let file: string[] = [];
+
+		let fileName = pathDefinition.name.charAt(0).toLowerCase() + pathDefinition.name.slice(1);
+		return this.doMakeFile('api-'.concat(fileName, '-proxy.tsx'), file);
 	}
 
 }
