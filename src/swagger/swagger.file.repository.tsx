@@ -98,11 +98,11 @@ class SwaggerFileRepo {
 		file.push('	desenvMode : number = -1;');
 		file.push('');
 		file.push('	private translatePath(endPath?: string): string {');
-		file.push('		return ApiConfig.URL + this.getPath() + ((endPath != undefined) ? endPath : "");');
+		file.push('		return ApiConfig.URL + this.getPath() + ((endPath !== undefined) ? endPath : "");');
 		file.push('	}');
 		file.push('');
 		file.push('	protected isDesenvMode() : boolean {');
-		file.push('		if (this.desenvMode == -1) {');
+		file.push('		if (this.desenvMode === -1) {');
 		file.push('			this.desenvMode = ((!process.env.NODE_ENV || process.env.NODE_ENV === "development") ? 1 : 0);');
 		file.push('		}');
 		file.push('');

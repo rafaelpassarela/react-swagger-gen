@@ -37,14 +37,10 @@ export class SwaggerDefField {
 		switch (this.type.toLowerCase()) {
 			case "integer":
 				return "number";
-				break;
 			case "array":
-
 				return "Array<" + this.subType + ">";
-				break;
 			default:
 				return this.type;
-				break;
 		}
 	}
 }

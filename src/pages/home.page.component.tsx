@@ -58,7 +58,7 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 	}
 
 	protected releaseInterval() {
-		if (this.generateIntervalID != -1) {
+		if (this.generateIntervalID !== -1) {
 			window.clearInterval(this.generateIntervalID);
 		}
 	}
@@ -183,7 +183,7 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 							/>
 						</Col>
 					</Form.Group>);
-				break;
+
 			case 'textarea':
 				return (
 					<Form.Group key={idx} as={Row} controlId={"form_" + item.name}>
@@ -202,7 +202,7 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 							/>
 						</Col>
 					</Form.Group>);
-				break;
+
 			default:
 				return (
 					<Form.Group key={idx} as={Row} controlId={"form_" + item.name}>
@@ -219,7 +219,7 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 							/>
 						</Col>
 					</Form.Group>);
-				break;
+
 		}
 	}
 
