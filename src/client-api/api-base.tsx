@@ -1,13 +1,13 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
-* Sample Api by MrRafael.ca - v1                                    *
-* This client Api was generated on 19/09/2019 18:56:26              *
+* Sample Api by MrRafael.ca from JSON - v1                          *
+* This client Api was generated on 20/09/2019 19:40:59              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
 * https://github.com/rafaelpassarela/empty_project_mysql_migrations *
 ********************************************************************/
- 
+
 import { ApiConfig } from './api-config';
 import { 
 	ApiMode,
@@ -24,16 +24,16 @@ import {
 // https://developer.mozilla.org/en-US/docs/Web/API/Request/mode
 // https://www.robinwieruch.de/react-fetching-data/
 
-class ApiBase<T> { //implements IApi<Values>{
+class ApiBase { //implements IApi<Values>{
 
 	desenvMode : number = -1;
 
 	private translatePath(endPath?: string): string {
-		return ApiConfig.URL + this.getPath() + ((endPath != undefined) ? endPath : "");
+		return ApiConfig.URL + this.getPath() + ((endPath !== undefined) ? endPath : "");
 	}
 
 	protected isDesenvMode() : boolean {
-		if (this.desenvMode == -1) {
+		if (this.desenvMode === -1) {
 			this.desenvMode = ((!process.env.NODE_ENV || process.env.NODE_ENV === "development") ? 1 : 0);
 		}
 
@@ -68,13 +68,13 @@ class ApiBase<T> { //implements IApi<Values>{
 		this.doFetch(ApiMethod.DELETE, this.translatePath(endPath), dataCallback, errorCallback);
 	}
 
-	public post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, bodyData?: T) {
+	public post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, bodyData?: any) {
 		this.doFetch(ApiMethod.POST, this.translatePath(''), dataCallback, errorCallback, bodyData);
 	}
 
 	doFetch(
 		requestMethod: ApiMethod, url: string,
-		dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, bodyData?: T) {
+		dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, bodyData?: any) {
 
 		if (this.isDesenvMode()) {
 			console.log(requestMethod + " -> " + url);

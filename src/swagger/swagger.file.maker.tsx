@@ -22,19 +22,19 @@ class SwaggerFileMaker {
 	private generateFileHeader(title: string) {
 		let date = new Date().toLocaleString();
 		date = '* This client Api was generated on '.concat(date);
-		date = date.concat(" ".repeat(67 - date.length), ' *\n');
+		date = date.concat(" ".repeat(67 - date.length), ' *\r\n');
 
-		title = '* '.concat(title.concat(" ".repeat(66 - title.length), '*\n'));
+		title = '* '.concat(title.concat(" ".repeat(66 - title.length), '*\r\n'));
 
-		let header = '/********************************************************************\n'
-					+ '*            MrRafael.ca - Swagger Generator for React              *\n'
+		let header = '/********************************************************************\r\n'
+					+ '*            MrRafael.ca - Swagger Generator for React              *\r\n'
 					+ title + date  
-					+ '*                                          Do not change this file! *\n'
-					+ '*                                                                   *\n'
-					+ '* Optimized for use as part of the project                          *\n'
-					+ '* https://github.com/rafaelpassarela/empty_project_mysql_migrations *\n'
-					+ '********************************************************************/\n'
-					+ ' \n';
+					+ '*                                          Do not change this file! *\r\n'
+					+ '*                                                                   *\r\n'
+					+ '* Optimized for use as part of the project                          *\r\n'
+					+ '* https://github.com/rafaelpassarela/empty_project_mysql_migrations *\r\n'
+					+ '********************************************************************/\r\n'
+					+ '\r\n';
 
 		swaggerFileRepo.setFileHeader(header);
 	}
@@ -57,7 +57,7 @@ class SwaggerFileMaker {
 
 		// generate the Zip file
 		this.doMakeZip();
-		// console.error('this.doMakeZip(); is commented on swagger.file.maker');
+		//console.error('this.doMakeZip(); is commented on swagger.file.maker(60)');
 	}
 
 	public doMakeZip() {

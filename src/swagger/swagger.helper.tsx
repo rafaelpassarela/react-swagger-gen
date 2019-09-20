@@ -39,6 +39,14 @@ class SwaggerHelper {
 		return newValue;
 	}
 
+	public extractClassName(refName: string) : string {
+		if (refName.indexOf("#/definitions/") >= 0) {
+			return refName.substr(refName.lastIndexOf('/') + 1);
+		}
+
+		return refName;
+	}
+
 }
 
 export const swaggerHelper = new SwaggerHelper();

@@ -151,12 +151,17 @@ class SwaggerEngine {
 		// return values
 		let response = swaggerHelper.getValue(data, ['responses', '200', 'schema']);
 		if (response !== undefined) {
+			let paramType = response['type'];
+			if (paramType === 'array') {
+				paramType = swaggerHelper.extractClassName(swaggerHelper.getValue(response, ['items', '$ref']));
+				paramType = 'Array<'.concat(paramType, '>');
+			}
 			pathAction.params.push(
 				this.getActionParam("OUT", {
 					name: "response",
 					in: "body",
 					required: false,
-					type: response['type'],
+					type: paramType,
 					schema: response['$ref'],
 					description: "Ok"
 				})
@@ -175,9 +180,7 @@ class SwaggerEngine {
 		newParam.type = paramData.type;
 		if (newParam.type == undefined) {
 			newParam.type = (inOut == "IN") ? paramData.schema['$ref'] : paramData.schema;
-			if (newParam.type.indexOf("#/definitions/") >= 0) {
-				newParam.type = newParam.type.substr(newParam.type.lastIndexOf('/') + 1);
-			}
+			newParam.type = swaggerHelper.extractClassName(newParam.type);
 		}
 
 		return newParam;
@@ -210,9 +213,7 @@ class SwaggerEngine {
 					// if no subType was found, search for class reference
 					if (field.subType === undefined) {
 						field.subType = swaggerHelper.getValue(subItem, ['$ref']);
-						if (field.subType.indexOf("#/definitions/") >= 0) {
-							field.subType = field.subType.substr(field.subType.lastIndexOf('/') + 1);
-						}
+						field.subType = swaggerHelper.extractClassName(field.subType);
 					}
 				}
 

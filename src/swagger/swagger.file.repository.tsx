@@ -3,10 +3,12 @@ import {
 	BaseSwaggerValues,
 	SwaggerDefinition,
 	SwaggerDefField,
-	SwaggerPath
+	SwaggerPath,
+	SwaggerPathAction,
+	SwaggerPathActionParam
 } from './swagger.model';
 
-const newLine: string = '\n';
+const newLine: string = '\r\n';
 
 class SwaggerFileRepo {
 
@@ -94,7 +96,7 @@ class SwaggerFileRepo {
 		file.push('// https://developer.mozilla.org/en-US/docs/Web/API/Request/mode');
 		file.push('// https://www.robinwieruch.de/react-fetching-data/');
 		file.push('');
-		file.push('class ApiBase<T> { //implements IApi<Values>{');
+		file.push('class ApiBase { //implements IApi<Values>{');
 		file.push('');
 		file.push('	desenvMode : number = -1;');
 		file.push('');
@@ -138,13 +140,13 @@ class SwaggerFileRepo {
 		file.push('		this.doFetch(ApiMethod.DELETE, this.translatePath(endPath), dataCallback, errorCallback);');
 		file.push('	}');
 		file.push('');
-		file.push('	public post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, bodyData?: T) {');
+		file.push('	public post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, bodyData?: any) {');
 		file.push('		this.doFetch(ApiMethod.POST, this.translatePath(\'\'), dataCallback, errorCallback, bodyData);');
 		file.push('	}');
 		file.push('');
 		file.push('	doFetch(');
 		file.push('		requestMethod: ApiMethod, url: string,');
-		file.push('		dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, bodyData?: T) {');
+		file.push('		dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, bodyData?: any) {');
 		file.push('');
 		file.push('		if (this.isDesenvMode()) {');
 		file.push('			console.log(requestMethod + " -> " + url);');
@@ -236,9 +238,43 @@ class SwaggerFileRepo {
 
 	public makePathFile(pathDefinition: SwaggerPath) : SwaggerFile {
 		let file: string[] = [];
+		let models: string[] = [];
 
-		let fileName = pathDefinition.name.charAt(0).toLowerCase() + pathDefinition.name.slice(1);
-		return this.doMakeFile('api-'.concat(fileName, '-proxy.tsx'), file);
+		// generate the file header (import of classes)
+		file.push("import ApiBase from './api-base';");
+		// list of all models 
+		pathDefinition.actions.map( (action: SwaggerPathAction) => {
+			action.params.map( (param: SwaggerPathActionParam) => {
+				if (!models.includes(param.type) && !param.isNatural()) {
+					if (param.type.includes('Array<')) {
+						models.push(param.type.substring('Array<'.length, param.type.indexOf('>')));
+					} else {
+						models.push(param.type);
+					}
+				}
+			});
+		});
+		if (models.length === 1) {
+			file.push("import { " + models[0] + " } from './api-models';");
+		} else if (models.length > 1) {
+			file.push("import { ");
+			models.map( (model: string) => {
+				file.push("	".concat(model, ',') );
+			});
+			file.push("} from './api-models';");
+		}
+		file.push('');
+		// class ApiValuesProxy extends ApiBase {
+		let proxyName: string = "Api" + pathDefinition.getNameFormatted("UpperCase") + "Proxy";
+		file.push("class " + proxyName + " extends ApiBase {")
+
+
+		// close class definition
+		file.push('}');
+		file.push('');
+		file.push('export default ' + proxyName + ';');
+
+		return this.doMakeFile('api-'.concat(pathDefinition.getNameFormatted("LowerCase"), '-proxy.tsx'), file);
 	}
 
 }

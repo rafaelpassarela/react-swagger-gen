@@ -67,6 +67,15 @@ export class SwaggerPathActionParam {
 			default:
 				return this.type;
 		}
+	}
+
+	public isNatural() : boolean {
+		return [
+			'integer',
+			'object',
+			'boolean',
+			'string'
+		].indexOf(this.type) > -1;
 	}	
 }
 
@@ -82,6 +91,13 @@ export class SwaggerPathAction {
 export class SwaggerPath {
 	name: string;
 	actions: Array<SwaggerPathAction> = new Array<SwaggerPathAction>();
+
+	public getNameFormatted(mode: "UpperCase" | "LowerCase") : string {
+		if (mode === "UpperCase")
+			return this.name.charAt(0).toUpperCase() + this.name.slice(1);
+
+		return this.name.charAt(0).toLowerCase() + this.name.slice(1);
+	}
 }
 
 export class SwaggerPathList extends Array<SwaggerPath> {
