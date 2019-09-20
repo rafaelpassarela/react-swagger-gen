@@ -74,7 +74,6 @@ class SwaggerEngine {
 
 			// /api/Values/{id} -> Values
 			fullName = item;
-			console.log("Full Name: " + fullName);
 
 			item = item.replace(this.info.config.baseApi, '');
 			if (item.indexOf('/') >= 0) {
@@ -103,14 +102,20 @@ class SwaggerEngine {
 
 			// for each path, try to find all the relative endpoints actions
 			endPoints = Object.getOwnPropertyNames(tmpObject); // "/api/Values/{id}"
-			console.log(endPoints);
-
 			endPoints.map( (epName: string) => {
-				console.log("EP Name: " + epName);
 				pathObj.actions.push(
-					this.generateEndPoint(swaggerHelper.getValue(tmpObject, [epName]), fullName, epName)
+					this.generateEndPoint(
+						swaggerHelper.getValue(tmpObject, [epName]), 
+						fullName, 
+						epName,
+						pathObj.name)
 				);
 				
+			});
+
+			// order the actions list
+			pathObj.actions.sort( (a: SwaggerPathAction, b: SwaggerPathAction): number => {
+				return (a.actionName > b.actionName) ? 1 : ((b.actionName > a.actionName) ? -1 : 0);
 			});
 
 			// update or add a new path
@@ -122,7 +127,7 @@ class SwaggerEngine {
 		});
 	}
 
-	private generateEndPoint(data: Object, fullName: string, endPointName: string) : SwaggerPathAction {
+	private generateEndPoint(data: Object, fullName: string, endPointName: string, pathName: string) : SwaggerPathAction {
 		let pathAction = new SwaggerPathAction();
 		pathAction.fullName = fullName;
 		pathAction.type = endPointName;
@@ -130,20 +135,52 @@ class SwaggerEngine {
 		pathAction.produces = swaggerHelper.getValue(data, ['produces']);
 		pathAction.consumes = swaggerHelper.getValue(data, ['consumes']);
 
+		if (pathAction.actionName == undefined) {
+			pathAction.actionName = pathName.concat('_', endPointName);
+		}
+
+		// read the input params
 		let params = swaggerHelper.getValue(data, ['parameters']) as Array<OrigParamItem>;
 		params.map( (paramData: OrigParamItem) => {
 			// the header always have the auth. param
 			if (paramData.name != 'Authorization' && paramData.in != 'header') {
-				let param = new SwaggerPathActionParam();
-				param.inOut = "IN";
-				param.name = paramData.name;
-				param.location = paramData.in;
-
+				let param = this.getActionParam("IN", paramData)
 				pathAction.params.push(param);
 			}
 		});
+		// return values
+		let response = swaggerHelper.getValue(data, ['responses', '200', 'schema']);
+		if (response !== undefined) {
+			pathAction.params.push(
+				this.getActionParam("OUT", {
+					name: "response",
+					in: "body",
+					required: false,
+					type: response['type'],
+					schema: response['$ref'],
+					description: "Ok"
+				})
+			);
+		}
 
 		return pathAction;
+	}
+
+	private getActionParam(inOut: "IN" | "OUT", paramData: OrigParamItem) : SwaggerPathActionParam {
+		let newParam = new SwaggerPathActionParam();
+		newParam.inOut = inOut;
+		newParam.name = paramData.name;
+		newParam.location = paramData.in;
+		newParam.required = paramData.required;
+		newParam.type = paramData.type;
+		if (newParam.type == undefined) {
+			newParam.type = (inOut == "IN") ? paramData.schema['$ref'] : paramData.schema;
+			if (newParam.type.indexOf("#/definitions/") >= 0) {
+				newParam.type = newParam.type.substr(newParam.type.lastIndexOf('/') + 1);
+			}
+		}
+
+		return newParam;
 	}
 
 	private getDefinitionList(objData: Object) {

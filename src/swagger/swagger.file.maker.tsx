@@ -1,6 +1,7 @@
 import { 
 	SwaggerInfo,
-	SwaggerFile
+	SwaggerFile,
+	SwaggerPath
 } from './swagger.model';
 import { swaggerHelper } from './swagger.helper';
 import { swaggerFileRepo } from './swagger.file.repository';
@@ -50,9 +51,13 @@ class SwaggerFileMaker {
 		this.files.push( swaggerFileRepo.makeConfigFile(data.config) );
 		this.files.push( swaggerFileRepo.makeModelsFile(data.definitions) );
 
+		data.paths.map( (value: SwaggerPath) => {
+			this.files.push( swaggerFileRepo.makePathFile(value) );
+		});
+
 		// generate the Zip file
-		// this.doMakeZip();
-		console.error('this.doMakeZip(); is commented');
+		this.doMakeZip();
+		// console.error('this.doMakeZip(); is commented on swagger.file.maker');
 	}
 
 	public doMakeZip() {
