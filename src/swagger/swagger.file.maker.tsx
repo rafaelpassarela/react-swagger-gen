@@ -50,7 +50,7 @@ class SwaggerFileMaker {
 		this.files.push( swaggerFileRepo.makeTypesFile() );
 		this.files.push( swaggerFileRepo.makeConfigFile(data.config) );
 		this.files.push( swaggerFileRepo.makeModelsFile(data.definitions) );
-
+		this.files.push( swaggerFileRepo.makeApiFile(data.paths) );
 		data.paths.map( (value: SwaggerPath) => {
 			this.files.push( swaggerFileRepo.makePathFile(value) );
 		});

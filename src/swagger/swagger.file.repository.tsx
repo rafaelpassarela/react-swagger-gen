@@ -3,6 +3,7 @@ import {
 	BaseSwaggerValues,
 	SwaggerDefinition,
 	SwaggerDefField,
+	SwaggerProxyFile,
 	SwaggerPath,
 	SwaggerPathAction,
 	SwaggerPathActionParam
@@ -134,23 +135,23 @@ class SwaggerFileRepo {
 		file.push('		return ApiRedirect.FOLLOW;');
 		file.push('	}');
 		file.push('');
-		file.push('	public get(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {');
+		file.push('	protected get(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {');
 		file.push('		this.doFetch(ApiMethod.GET, this.translatePath(cmdName, endPath), dataCallback, errorCallback);');
 		file.push('	}');
 		file.push('');
-		file.push('	public delete(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {');
+		file.push('	protected delete(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {');
 		file.push('		this.doFetch(ApiMethod.DELETE, this.translatePath(cmdName, endPath), dataCallback, errorCallback);');
 		file.push('	}');
 		file.push('');
-		file.push('	public post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, bodyData?: any) {');
+		file.push('	protected post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, bodyData?: any) {');
 		file.push('		this.doFetch(ApiMethod.POST, this.translatePath(cmdName, \'\'), dataCallback, errorCallback, bodyData);');
 		file.push('	}');
 		file.push('');
-		file.push('	public put(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, bodyData?: any) {');
+		file.push('	protected put(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, bodyData?: any) {');
 		file.push('		this.doFetch(ApiMethod.PUT, this.translatePath(cmdName, \'\'), dataCallback, errorCallback, bodyData);');
 		file.push('	}');
 		file.push('');
-		file.push('	doFetch(');
+		file.push('	private doFetch(');
 		file.push('		requestMethod: ApiMethod, url: string,');
 		file.push('		dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, bodyData?: any) {');
 		file.push('');
@@ -277,7 +278,7 @@ class SwaggerFileRepo {
 		}
 		file.push('');
 		// class ApiValuesProxy extends ApiBase {
-		let proxyName: string = "Api" + pathDefinition.getNameFormatted("UpperCase") + "Proxy";
+		let proxyName: string = pathDefinition.getProxyName();
 		file.push("class " + proxyName + " extends ApiBase {")
 		file.push('');
 		// Override of getPath() function
@@ -295,10 +296,53 @@ class SwaggerFileRepo {
 		file.push('');
 		file.push('export default ' + proxyName + ';');
 
-		return this.doMakeFile('api-'.concat(pathDefinition.getNameFormatted("LowerCase"), '-proxy.tsx'), file);
+		return this.doMakeFile(pathDefinition.getProxyFileName(true), file);
 	}
 
-	protected generateMethod(pathName: string, action: SwaggerPathAction) : string[] {
+	public makeApiFile(paths: Array<SwaggerPath>) : SwaggerFile {
+		let file: string[] = [];
+		let proxyList: SwaggerProxyFile[] = [];
+
+		paths.map( (value: SwaggerPath) => {
+			let item = {
+				proxyFile: value.getProxyFileName(false),
+				proxyClass: value.getProxyName(),
+				proxyPathName: value.name,
+				proxyVarName: '',
+			} as SwaggerProxyFile;
+			item.proxyVarName = item.proxyClass.substring(0, item.proxyClass.length - 'Proxy'.length);
+			item.proxyVarName = item.proxyClass.charAt(0).toLowerCase() + item.proxyClass.slice(1);
+
+			proxyList.push(item);
+			file.push("import " + item.proxyClass + " from './" + item.proxyFile + "';");
+		});
+		file.push('');
+		file.push('class ApiHelper {');
+		file.push('');
+		// apiValues = new ApiValuesProxy();
+		proxyList.map( (value: SwaggerProxyFile) => {
+			file.push("	" + value.proxyVarName + " = new " + value.proxyClass + "();");
+		});
+
+		file.push('');
+
+		proxyList.map( (value: SwaggerProxyFile) => {
+			// public Values() : ApiValuesProxy{
+			file.push("	public " + value.proxyPathName + "() : " + value.proxyClass + "{");
+			file.push("		return this." + value.proxyVarName + ";");
+			file.push("	}");
+		});
+
+		file.push('}');
+		file.push('');
+		file.push('const Api = new ApiHelper();');
+		file.push('');
+		file.push('export default Api;');
+
+		return this.doMakeFile('api.tsx', file);
+	}
+
+	private generateMethod(pathName: string, action: SwaggerPathAction) : string[] {
 		let proc: string[] = [];
 
 		proc.push('	/**');

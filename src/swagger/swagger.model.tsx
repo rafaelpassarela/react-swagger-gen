@@ -107,6 +107,14 @@ export class SwaggerPath {
 
 		return this.name.charAt(0).toLowerCase() + this.name.slice(1);
 	}
+
+	public getProxyName() : string {
+		return "Api" + this.getNameFormatted("UpperCase") + "Proxy";
+	}
+
+	public getProxyFileName(extension: boolean) : string {
+		return 'api-'.concat(this.getNameFormatted("LowerCase"), '-proxy', ((extension) ? '.tsx' : ''));
+	}
 }
 
 export class SwaggerPathList extends Array<SwaggerPath> {
@@ -125,6 +133,13 @@ export class SwaggerInfo {
 		this.definitions.splice(0, this.definitions.length);
 		this.paths.splice(0, this.paths.length);
 	}
+}
+
+export class SwaggerProxyFile {
+	proxyFile: string;
+	proxyClass: string;
+	proxyVarName: string;
+	proxyPathName: string;
 }
 
 // ---------- Origin Param Model
