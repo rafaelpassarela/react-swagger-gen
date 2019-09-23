@@ -100,8 +100,10 @@ class SwaggerFileRepo {
 		file.push('');
 		file.push('	desenvMode : number = -1;');
 		file.push('');
-		file.push('	private translatePath(endPath?: string): string {');
-		file.push('		return ApiConfig.URL + this.getPath() + ((endPath !== undefined) ? endPath : "");');
+		file.push('	private translatePath(cmdName?: string, endPath?: string): string {');
+		file.push('		return ApiConfig.URL + this.getPath()');
+		file.push('			+ ((cmdName !== undefined) ? "/" + cmdName : "")');
+		file.push('			+ ((endPath !== undefined) ? endPath : "");');
 		file.push('	}');
 		file.push('');
 		file.push('	protected isDesenvMode() : boolean {');
@@ -132,16 +134,20 @@ class SwaggerFileRepo {
 		file.push('		return ApiRedirect.FOLLOW;');
 		file.push('	}');
 		file.push('');
-		file.push('	public get(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, endPath?: string) {');
-		file.push('		this.doFetch(ApiMethod.GET, this.translatePath(endPath), dataCallback, errorCallback);');
+		file.push('	public get(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {');
+		file.push('		this.doFetch(ApiMethod.GET, this.translatePath(cmdName, endPath), dataCallback, errorCallback);');
 		file.push('	}');
 		file.push('');
-		file.push('	public delete(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, endPath?: string) {');
-		file.push('		this.doFetch(ApiMethod.DELETE, this.translatePath(endPath), dataCallback, errorCallback);');
+		file.push('	public delete(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {');
+		file.push('		this.doFetch(ApiMethod.DELETE, this.translatePath(cmdName, endPath), dataCallback, errorCallback);');
 		file.push('	}');
 		file.push('');
-		file.push('	public post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, bodyData?: any) {');
-		file.push('		this.doFetch(ApiMethod.POST, this.translatePath(\'\'), dataCallback, errorCallback, bodyData);');
+		file.push('	public post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, bodyData?: any) {');
+		file.push('		this.doFetch(ApiMethod.POST, this.translatePath(cmdName, \'\'), dataCallback, errorCallback, bodyData);');
+		file.push('	}');
+		file.push('');
+		file.push('	public put(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, bodyData?: any) {');
+		file.push('		this.doFetch(ApiMethod.PUT, this.translatePath(cmdName, \'\'), dataCallback, errorCallback, bodyData);');
 		file.push('	}');
 		file.push('');
 		file.push('	doFetch(');
@@ -242,10 +248,11 @@ class SwaggerFileRepo {
 
 		// generate the file header (import of classes)
 		file.push("import ApiBase from './api-base';");
+		file.push("import { ApiDataCallback, ApiErrorCallback } from './api-types';");
 		// list of all models 
 		pathDefinition.actions.map( (action: SwaggerPathAction) => {
 			action.params.map( (param: SwaggerPathActionParam) => {
-				if (!models.includes(param.type) && !param.isNatural()) {
+				if (!models.includes(param.type) && !param.isNatural() && param.inOut === "IN") {
 					if (param.type.includes('Array<')) {
 						models.push(param.type.substring('Array<'.length, param.type.indexOf('>')));
 					} else {
@@ -254,8 +261,13 @@ class SwaggerFileRepo {
 				}
 			});
 		});
+		// sort the path models
+		models.sort( (a: string, b: string): number => {
+			return (a > b) ? 1 : ((b > a) ? -1 : 0);
+		});
+		// generate imports
 		if (models.length === 1) {
-			file.push("import { " + models[0] + " } from './api-models';");
+			file.push("import { " + models[0] + " } from './api-models';");			
 		} else if (models.length > 1) {
 			file.push("import { ");
 			models.map( (model: string) => {
@@ -267,7 +279,16 @@ class SwaggerFileRepo {
 		// class ApiValuesProxy extends ApiBase {
 		let proxyName: string = "Api" + pathDefinition.getNameFormatted("UpperCase") + "Proxy";
 		file.push("class " + proxyName + " extends ApiBase {")
+		file.push('');
+		// Override of getPath() function
+		file.push('	protected getPath(): string {');
+		file.push("		return '" + pathDefinition.name + "';");
+		file.push('	}');
+		file.push('');
 
+		pathDefinition.actions.map( (action: SwaggerPathAction) => {
+			file = file.concat(this.generateMethod(pathDefinition.getNameFormatted("UpperCase"), action));
+		});
 
 		// close class definition
 		file.push('}');
@@ -275,6 +296,108 @@ class SwaggerFileRepo {
 		file.push('export default ' + proxyName + ';');
 
 		return this.doMakeFile('api-'.concat(pathDefinition.getNameFormatted("LowerCase"), '-proxy.tsx'), file);
+	}
+
+	protected generateMethod(pathName: string, action: SwaggerPathAction) : string[] {
+		let proc: string[] = [];
+
+		proc.push('	/**');
+		// full path name
+		proc.push('	* Path Name: ' + action.fullName);
+		// Consumes
+		if (action.consumes !== undefined) {
+			proc.push('	* Consumes:');
+			action.consumes.map((item: string) => {
+				proc.push('	*	- ' + item);
+			});
+		}
+		// produces
+		if (action.produces !== undefined) {
+			proc.push('	* Produces:');
+			action.produces.map((item: string) => {
+				proc.push('	*	- ' + item);
+			});
+		}
+		// param list
+		let paramList: string = 'dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback';
+		if (action.params !== undefined) {
+			action.params.map( (item: SwaggerPathActionParam) => {
+				if (item.inOut === "IN") {
+					paramList += ', '.concat(item.name, ': ', item.getType());
+				}
+			});
+		}
+
+		proc.push('	*/');
+		proc.push('	public ' + action.getDeclarationName(pathName) + '(' + paramList + ') {');
+
+		let cmd: string = '		this.' + action.type + '(dataCallback, errorCallback, ' 
+			+ ((action.cmdName === undefined) ? 'undefined' : "'" + action.cmdName + "'") + ', '; // body(JSON Object) or endPath {1}
+		// endPath, Values/4?name=Test
+		if (action.type === 'get' || action.type === 'delete') {
+			let urlParam: string = '';
+			// 1) path
+			let tmpParam = action.params.filter( (value: SwaggerPathActionParam) => {
+				return (value.inOut == "IN" && value.location === "path");
+			});
+			tmpParam.map( (item: SwaggerPathActionParam, idx: number) => {
+				urlParam += ((idx > 0) ? ' + ' : '') + "'/' + " + item.name;
+			});
+
+			// 2) query
+			tmpParam = action.params.filter( (value: SwaggerPathActionParam) => {
+				return (value.inOut == "IN" && value.location === "query");
+			});
+			tmpParam.map( (item: SwaggerPathActionParam, idx: number) => {
+				// '?provider=' + encodeURIComponent(provider) + '&error=' + encodeURIComponent(error)
+				urlParam += ((idx === 0) ? "'?" : "\n\t\t\t+ '&" ) 
+					+ item.name.concat('=', "'")
+					+ " + encodeURIComponent(" + item.name + ")";
+			});
+
+			if (urlParam !== '') {
+				cmd += urlParam;
+			} else {
+				cmd += 'undefined';
+			}
+			cmd += ');';
+
+		} else {
+		// body, find a body param
+			let bodyParam = action.params.filter( (value: SwaggerPathActionParam) => {
+				return (value.inOut === "IN") && (value.location === "body");
+			});
+			if (bodyParam.length > 0) {
+				cmd += bodyParam[0].name.concat(');');
+			} else {
+				let formData = this.formDataObjectAsString(action.params);
+				if (formData === undefined || formData.trim() === '') {
+					cmd += 'undefined);';
+					proc.push('		console.warn(\'No body param for method "' + action.getDeclarationName(pathName) + '"\');');
+				} else {
+					cmd += formData.concat(');');
+				}
+			}
+		}
+		proc.push(cmd);
+		proc.push('	}');
+		proc.push('');
+		return proc;
+	}
+
+	private formDataObjectAsString(actionParams: Array<SwaggerPathActionParam>) : string {
+		let dataObject: string = '';
+		// {"Foo":"Value 1","Bar":"Value 2"} => {"Foo": Foo,"Bar": Bar}
+		actionParams.map( (value: SwaggerPathActionParam) => {
+			if (value.inOut === "IN" && value.location === "formData") {
+				dataObject += '"' + value.name + '":' + value.name + ',';
+			}
+		});
+		if (dataObject.trim() !== '') {
+			dataObject = '{' + dataObject.substring(0, dataObject.length - 1) + '}';
+		}
+
+		return dataObject;
 	}
 
 }

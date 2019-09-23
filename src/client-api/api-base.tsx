@@ -1,7 +1,7 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
-* Sample Api by MrRafael.ca from JSON - v1                          *
-* This client Api was generated on 20/09/2019 19:40:59              *
+* Sample Api by MrRafael.ca - v1                                    *
+* This client Api was generated on 22/09/2019 22:24:04              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
@@ -28,8 +28,10 @@ class ApiBase { //implements IApi<Values>{
 
 	desenvMode : number = -1;
 
-	private translatePath(endPath?: string): string {
-		return ApiConfig.URL + this.getPath() + ((endPath !== undefined) ? endPath : "");
+	private translatePath(cmdName?: string, endPath?: string): string {
+		return ApiConfig.URL + this.getPath()
+			+ ((cmdName !== undefined) ? "/" + cmdName : "")
+			+ ((endPath !== undefined) ? endPath : "");
 	}
 
 	protected isDesenvMode() : boolean {
@@ -60,16 +62,20 @@ class ApiBase { //implements IApi<Values>{
 		return ApiRedirect.FOLLOW;
 	}
 
-	public get(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, endPath?: string) {
-		this.doFetch(ApiMethod.GET, this.translatePath(endPath), dataCallback, errorCallback);
+	public get(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {
+		this.doFetch(ApiMethod.GET, this.translatePath(cmdName, endPath), dataCallback, errorCallback);
 	}
 
-	public delete(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, endPath?: string) {
-		this.doFetch(ApiMethod.DELETE, this.translatePath(endPath), dataCallback, errorCallback);
+	public delete(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {
+		this.doFetch(ApiMethod.DELETE, this.translatePath(cmdName, endPath), dataCallback, errorCallback);
 	}
 
-	public post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, bodyData?: any) {
-		this.doFetch(ApiMethod.POST, this.translatePath(''), dataCallback, errorCallback, bodyData);
+	public post(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, bodyData?: any) {
+		this.doFetch(ApiMethod.POST, this.translatePath(cmdName, ''), dataCallback, errorCallback, bodyData);
+	}
+
+	public put(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, bodyData?: any) {
+		this.doFetch(ApiMethod.PUT, this.translatePath(cmdName, ''), dataCallback, errorCallback, bodyData);
 	}
 
 	doFetch(

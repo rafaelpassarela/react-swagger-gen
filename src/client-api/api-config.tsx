@@ -1,7 +1,7 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
-* Sample Api by MrRafael.ca from JSON - v1                          *
-* This client Api was generated on 20/09/2019 19:40:59              *
+* Sample Api by MrRafael.ca - v1                                    *
+* This client Api was generated on 22/09/2019 22:24:04              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *

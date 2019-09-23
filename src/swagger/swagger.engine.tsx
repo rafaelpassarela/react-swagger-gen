@@ -138,6 +138,11 @@ class SwaggerEngine {
 		if (pathAction.actionName == undefined) {
 			pathAction.actionName = pathName.concat('_', endPointName);
 		}
+		// check the cmd name
+		let cmdName = fullName.substring(fullName.lastIndexOf('/') + 1);
+		if (cmdName.charAt(0) !== '{' && cmdName.toUpperCase() !== pathName.toUpperCase()) {
+			pathAction.cmdName = cmdName;
+		}
 
 		// read the input params
 		let params = swaggerHelper.getValue(data, ['parameters']) as Array<OrigParamItem>;

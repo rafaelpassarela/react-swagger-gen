@@ -83,9 +83,18 @@ export class SwaggerPathAction {
 	type: string;
 	actionName: string;
 	fullName: string;
+	cmdName: string;
 	produces: string[];
 	consumes: string[];
 	params: Array<SwaggerPathActionParam> = new Array<SwaggerPathActionParam>();
+
+	public getDeclarationName(pathName: string): string {
+		if (this.cmdName !== undefined) {
+			return pathName.concat('_', this.cmdName);
+		}
+
+		return pathName.concat('_', this.type.charAt(0).toUpperCase() + this.type.slice(1) );
+	}
 }
 
 export class SwaggerPath {
