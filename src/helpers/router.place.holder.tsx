@@ -3,7 +3,6 @@ import { Route, Switch } from 'react-router-dom';
 
 // Available pages
 import HomePage from '../pages/home.page.component';
-import Error404Page from '../pages/notfound404.page.component';
 
 class RouterPlaceHolder extends React.Component {
 
@@ -12,8 +11,8 @@ class RouterPlaceHolder extends React.Component {
 		return (
 			<div>
 				<Switch>
-					<Route path="/" exact component={HomePage} />
-					<Route component={Error404Page} />
+					<Route path="/swgen" exact component={HomePage} />
+					<Route component={HomePage} />
 				</Switch>
 			</div>
 		);

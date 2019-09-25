@@ -198,9 +198,9 @@ class SwaggerFileRepo {
 	public makeConfigFile(config: BaseSwaggerValues) : SwaggerFile {
 		let file: string[] = [];
 
-		file.push('const DEV_URL = "http://localhost:57431"');
-		file.push('const PROD_URL= "http://mrrafael.ca:1234"');
-		file.push('const BASE_API = "/api/"');
+		file.push('const DEV_URL = "' + config.devURL + '"');
+		file.push('const PROD_URL= "' + config.prodURL + '"');
+		file.push('const BASE_API = "' + config.baseApi + '"');
 		file.push('');
 		file.push('export const ApiConfig = {');
 		file.push('	BasePath: BASE_API,');

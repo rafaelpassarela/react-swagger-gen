@@ -1,9 +1,9 @@
 {
-  "short_name": "Frontend in React",
-  "name": "Frontend in React as part of Empty Project by MrRafael.ca",
+  "short_name": "React Swagger Generator",
+  "name": "React Swagger Generator by MrRafael.ca",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     }

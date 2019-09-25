@@ -26,8 +26,6 @@ class SwaggerEngine {
 				let objData = JSON.parse(data.data);
 				this.parseSwaggerObject(objData);
 
-				console.log(this.info);
-
 				return resolve('The files were successfully generated. Download should start soon.');
 			} catch(e) {
 				return reject(e.message);

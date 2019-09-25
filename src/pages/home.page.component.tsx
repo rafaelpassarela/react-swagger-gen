@@ -1,6 +1,7 @@
 import * as React from 'react';
 import BaseViewComponent, { IBaseViewProps, IBaseViewState } from '../components/base.view.component';
 import { fileUtils, IFileModel } from '../helpers/file.utils.helper';
+import { formHelper } from '../helpers/form.helper';
 import { FormItem, SwaggerValues } from '../swagger/swagger.model';
 import { formItemList } from '../swagger/swagger.form.config';
 import SwaggerEngine from '../swagger/swagger.engine';
@@ -20,7 +21,8 @@ import '../inc/pageframe.css';
 
 interface IHomeState extends IBaseViewState {
 	disabled: boolean;
-	loadMessage: string,
+	formValid: boolean;
+	loadMessage: string;
 	swagger: SwaggerValues;
 }
 
@@ -31,6 +33,7 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 
 		this.state = {
 			disabled: false,
+			formValid: false,
 			loadMessage: 'Getting values...',
 			swagger: {
 				data: cookieStorage.getStorage("data", ""),
@@ -40,10 +43,10 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 			} as SwaggerValues
 		};
 
-		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 		this.handleClick = this.handleClick.bind(this);
 		this.doGenerateFiles = this.doGenerateFiles.bind(this);
+		this.doValidateForm = this.doValidateForm.bind(this);
 		this.releaseInterval = this.releaseInterval.bind(this);
 		this.getForm = this.getForm.bind(this);
 	}
@@ -65,9 +68,12 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 
 	componentDidMount() {
 		this.setState({
-			loadMessage: ''
+			loadMessage: '',
+			formValid: this.doValidateForm()
 		});
 	}
+
+
 
 	componentWillUnmount() {
 		this.releaseInterval();
@@ -108,13 +114,15 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 		}
 	}
 
-	handleSubmit(event: any) {
-		const canSubmit = false;
+	doValidateForm = () => {
+		let valid: boolean = true;
+		// Get the container element
+		let container = document.getElementById('swagger_form');
 
-		if (!canSubmit || event.currentTarget.checkValidity() === false) {
-			event.preventDefault();
-			event.stopPropagation();
-		}
+		valid = formHelper.checkRequiredFields(container, "input") 
+			 && formHelper.checkRequiredFields(container, "textarea");
+
+		return valid;
 	}
 
 	handleChange(event: any) {
@@ -136,11 +144,16 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 						});
 						fileUtils.asString(event.target.files[0], (val: IFileModel) => {
 							obj = this.state.swagger;
-							obj['data'] = val.data as string
+							obj['data'] = val.data as string;
+							// do a setState with callback to execute the form validation
 							this.setState({
 								swagger: obj,
 								loadMessage: ''
-							});
+							}, () => { 
+								this.setState({
+									formValid: this.doValidateForm()
+								});
+							} );
 							cookieStorage.setStorage('data', val.data as string);
 						});
 					}
@@ -155,12 +168,13 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 				obj = this.state.swagger;
 				obj[prop] = value;
 				this.setState({
-					swagger: obj
+					swagger: obj,
+					formValid: this.doValidateForm()
 				} as IHomeState);
 
 				cookieStorage.setStorage(prop, value);
 			}
-			
+		
 		} else {
 			this.canChangeObjectValues = true;
 		}
@@ -225,14 +239,14 @@ class HomePage extends BaseViewComponent<IBaseViewProps, IHomeState> {
 
 	getForm = (): any => {
 		return (
-			<Form noValidate validated={true} onSubmit={this.handleSubmit}>
+			<Form validated={true} id="swagger_form">
 				{
 					formItemList.map( (item: FormItem, idx: number) => {
 						return this.getItem(item, idx);
 					})
 				}
 				<div className="modal-footer" style={{padding: 0, paddingTop: 10}}>
-					<Button variant="success" style={{backgroundColor: '#87BE3F'}} onClick={this.handleClick} disabled={this.state.disabled}>
+					<Button variant="success" style={{backgroundColor: '#87BE3F'}} onClick={this.handleClick} disabled={this.state.disabled || !this.state.formValid}>
 						<LoadingSmall active={this.state.disabled} />
 						{(this.state.disabled) ? "Generating..." : "Generate" }
 					</Button>

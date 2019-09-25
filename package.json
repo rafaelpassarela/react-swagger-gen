@@ -2,7 +2,8 @@
   "name": "react-swagger-gen",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://mrrafael.ca/swgen",
+  "homepage": ".",
+  "homepage_old": "http://mrrafael.ca/swgen",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.22",
     "@fortawesome/free-brands-svg-icons": "^5.10.2",
