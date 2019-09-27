@@ -1,7 +1,7 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
 * Sample Api by MrRafael.ca - v1                                    *
-* This client Api was generated on 23/09/2019 16:54:02              *
+* This client Api was generated on 27/09/2019 12:15:23              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
@@ -23,7 +23,9 @@ class ApiTokenProxy extends ApiBase {
 	*	- application/x-www-form-urlencoded
 	*/
 	public Token_Post(dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, grant_type: string, username: string, password: string) {
-		this.post(dataCallback, errorCallback, undefined, {"grant_type":grant_type,"username":username,"password":password});
+		this.post(dataCallback, errorCallback, undefined, "grant_type=" + encodeURIComponent(grant_type)
+			+ "&username=" + encodeURIComponent(username)
+			+ "&password=" + encodeURIComponent(password));
 	}
 
 }

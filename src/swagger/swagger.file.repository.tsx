@@ -99,7 +99,8 @@ class SwaggerFileRepo {
 		file.push('');
 		file.push('class ApiBase { //implements IApi<Values>{');
 		file.push('');
-		file.push('	desenvMode : number = -1;');
+		file.push('	private desenvMode : number = -1;');
+		file.push('	private authToken: string;');
 		file.push('');
 		file.push('	private translatePath(cmdName?: string, endPath?: string): string {');
 		file.push('		return ApiConfig.URL + this.getPath()');
@@ -135,6 +136,10 @@ class SwaggerFileRepo {
 		file.push('		return ApiRedirect.FOLLOW;');
 		file.push('	}');
 		file.push('');
+		file.push('	public setToken(value: string) {');
+		file.push('		this.authToken = value;');
+		file.push('	}');
+		file.push('');	
 		file.push('	protected get(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {');
 		file.push('		this.doFetch(ApiMethod.GET, this.translatePath(cmdName, endPath), dataCallback, errorCallback);');
 		file.push('	}');
@@ -167,7 +172,8 @@ class SwaggerFileRepo {
 		file.push('			headers: {');
 		file.push('				Accept: "application/json",');
 		file.push('				"Content-Type": \'application/json; charset=utf-8\',');
-		file.push('				"Access-Control-Allow-Origin": \'*\'');
+		file.push('				"Access-Control-Allow-Origin": \'*\',');
+		file.push('				"Authorization": "bearer " + (this.authToken || \'\')');
 		file.push('			},');
 		file.push('			redirect: this.getRedirect(),');
 		file.push('			body: ((bodyData != undefined) ? JSON.stringify(bodyData) : undefined)');
@@ -431,15 +437,22 @@ class SwaggerFileRepo {
 
 	private formDataObjectAsString(actionParams: Array<SwaggerPathActionParam>) : string {
 		let dataObject: string = '';
-		// {"Foo":"Value 1","Bar":"Value 2"} => {"Foo": Foo,"Bar": Bar}
+		// {"Foo":"Value 1","Bar":"Value 2"} => {"Foo": Foo,"Bar": Bar} ==> ERROR
+		// actionParams.map( (value: SwaggerPathActionParam) => {
+		// 	if (value.inOut === "IN" && value.location === "formData") {
+		// 		dataObject += '"' + value.name + '":' + value.name + ',';
+		// 	}
+		// });
+		// if (dataObject.trim() !== '') {
+		// 	dataObject = '{' + dataObject.substring(0, dataObject.length - 1) + '}';
+		// }
+
+		// 'Foo=Value%201&Bar=Value%202"' => Ok
 		actionParams.map( (value: SwaggerPathActionParam) => {
 			if (value.inOut === "IN" && value.location === "formData") {
-				dataObject += '"' + value.name + '":' + value.name + ',';
+				dataObject += ((dataObject === '') ? '"' : '\n\t\t\t+ "&') + value.name + '=" + encodeURIComponent(' + value.name + ')';
 			}
 		});
-		if (dataObject.trim() !== '') {
-			dataObject = '{' + dataObject.substring(0, dataObject.length - 1) + '}';
-		}
 
 		return dataObject;
 	}

@@ -1,7 +1,7 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
 * Sample Api by MrRafael.ca - v1                                    *
-* This client Api was generated on 23/09/2019 16:54:02              *
+* This client Api was generated on 27/09/2019 12:15:23              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
@@ -26,7 +26,8 @@ import {
 
 class ApiBase { //implements IApi<Values>{
 
-	desenvMode : number = -1;
+	private desenvMode : number = -1;
+	private authToken: string;
 
 	private translatePath(cmdName?: string, endPath?: string): string {
 		return ApiConfig.URL + this.getPath()
@@ -62,6 +63,10 @@ class ApiBase { //implements IApi<Values>{
 		return ApiRedirect.FOLLOW;
 	}
 
+	public setToken(value: string) {
+		this.authToken = value;
+	}
+
 	protected get(dataCallback : ApiDataCallback, errorCallback : ApiErrorCallback, cmdName?: string, endPath?: string) {
 		this.doFetch(ApiMethod.GET, this.translatePath(cmdName, endPath), dataCallback, errorCallback);
 	}
@@ -94,7 +99,8 @@ class ApiBase { //implements IApi<Values>{
 			headers: {
 				Accept: "application/json",
 				"Content-Type": 'application/json; charset=utf-8',
-				"Access-Control-Allow-Origin": '*'
+				"Access-Control-Allow-Origin": '*',
+				"Authorization": "bearer " + (this.authToken || '')
 			},
 			redirect: this.getRedirect(),
 			body: ((bodyData != undefined) ? JSON.stringify(bodyData) : undefined)

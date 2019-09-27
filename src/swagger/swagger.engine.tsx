@@ -181,7 +181,7 @@ class SwaggerEngine {
 		newParam.location = paramData.in;
 		newParam.required = paramData.required;
 		newParam.type = paramData.type;
-		if (newParam.type == undefined) {
+		if (newParam.type === undefined) {
 			newParam.type = (inOut == "IN") ? paramData.schema['$ref'] : paramData.schema;
 			newParam.type = swaggerHelper.extractClassName(newParam.type);
 		}
