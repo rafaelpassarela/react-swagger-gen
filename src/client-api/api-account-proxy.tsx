@@ -1,11 +1,13 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
 * Sample Api by MrRafael.ca - v1                                    *
-* This client Api was generated on 27/09/2019 12:15:23              *
+* This client Api was generated on 27/09/2019 16:02:13              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
 * https://github.com/rafaelpassarela/empty_project_mysql_migrations *
+*                                                                   *
+* Generated at -> http://mrrafael.ca/swgen/                         *
 ********************************************************************/
 
 import ApiBase from './api-base';
@@ -71,8 +73,8 @@ class ApiAccountProxy extends ApiBase {
 	*	- text/xml
 	*/
 	public Account_ExternalLogin(dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, provider: string, error: string) {
-		this.get(dataCallback, errorCallback, 'ExternalLogin', '?provider=' + encodeURIComponent(provider)
-			+ '&error=' + encodeURIComponent(error));
+		this.get(dataCallback, errorCallback, 'ExternalLogin', '?provider=' + this.encodeParams(provider)
+			+ '&error=' + this.encodeParams(error));
 	}
 
 	/**
@@ -85,8 +87,8 @@ class ApiAccountProxy extends ApiBase {
 	*	- text/xml
 	*/
 	public Account_ExternalLogins(dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, returnUrl: string, generateState: boolean) {
-		this.get(dataCallback, errorCallback, 'ExternalLogins', '?returnUrl=' + encodeURIComponent(returnUrl)
-			+ '&generateState=' + encodeURIComponent(generateState));
+		this.get(dataCallback, errorCallback, 'ExternalLogins', '?returnUrl=' + this.encodeParams(returnUrl)
+			+ '&generateState=' + this.encodeParams(generateState));
 	}
 
 	/**
@@ -99,8 +101,8 @@ class ApiAccountProxy extends ApiBase {
 	*	- text/xml
 	*/
 	public Account_ManageInfo(dataCallback: ApiDataCallback, errorCallback: ApiErrorCallback, returnUrl: string, generateState: boolean) {
-		this.get(dataCallback, errorCallback, 'ManageInfo', '?returnUrl=' + encodeURIComponent(returnUrl)
-			+ '&generateState=' + encodeURIComponent(generateState));
+		this.get(dataCallback, errorCallback, 'ManageInfo', '?returnUrl=' + this.encodeParams(returnUrl)
+			+ '&generateState=' + this.encodeParams(generateState));
 	}
 
 	/**

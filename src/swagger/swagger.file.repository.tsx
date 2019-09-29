@@ -136,6 +136,24 @@ class SwaggerFileRepo {
 		file.push('		return ApiRedirect.FOLLOW;');
 		file.push('	}');
 		file.push('');
+		file.push('	protected encodeParams(value: string | number | boolean | object) : string {');
+		file.push('		let strVal : string;');
+		file.push('		switch (typeof value) {');
+		file.push('			case "boolean":');
+		file.push('				strVal = (value === true) ? "true" : "false";');
+		file.push('				break;');
+		file.push('			case "number":');
+		file.push('				strVal = value.toString();');
+		file.push('				break;');
+		file.push('			case "object":');
+		file.push('				strVal = JSON.stringify(value as Object);');
+		file.push('			default:');
+		file.push('				strVal = value as string;');
+		file.push('				break;');
+		file.push('		}');
+		file.push('		return encodeURIComponent(strVal);');
+		file.push('	}');
+		file.push('');
 		file.push('	public setToken(value: string) {');
 		file.push('		this.authToken = value;');
 		file.push('	}');
@@ -164,6 +182,16 @@ class SwaggerFileRepo {
 		file.push('			console.log(requestMethod + " -> " + url);');
 		file.push('		}');
 		file.push('');
+		file.push('		let data: string | undefined = undefined;');
+		file.push('		if (data !== undefined) {');
+		file.push('			if ((typeof bodyData === "string" && bodyData.charAt(0) === "{")');
+		file.push('			 || (typeof bodyData !== "string")) {');
+		file.push('				data = JSON.stringify(bodyData);');
+		file.push('			} else {');
+		file.push('				data = bodyData;');
+		file.push('			}');
+		file.push('		}');
+		file.push('');
 		file.push('		return fetch(url, {');
 		file.push('			method: requestMethod,');
 		file.push('			mode: this.getMode(),');
@@ -176,7 +204,7 @@ class SwaggerFileRepo {
 		file.push('				"Authorization": "bearer " + (this.authToken || \'\')');
 		file.push('			},');
 		file.push('			redirect: this.getRedirect(),');
-		file.push('			body: ((bodyData != undefined) ? JSON.stringify(bodyData) : undefined)');
+		file.push('			body: data');
 		file.push('		})');
 		file.push('			.then(response => {');
 		file.push('				if (response.ok) {');
@@ -327,7 +355,7 @@ class SwaggerFileRepo {
 		file.push('');
 		// apiValues = new ApiValuesProxy();
 		proxyList.map( (value: SwaggerProxyFile) => {
-			file.push("	" + value.proxyVarName + " = new " + value.proxyClass + "();");
+			file.push("	private " + value.proxyVarName + " = new " + value.proxyClass + "();");
 		});
 
 		file.push('');
@@ -402,7 +430,7 @@ class SwaggerFileRepo {
 				// '?provider=' + encodeURIComponent(provider) + '&error=' + encodeURIComponent(error)
 				urlParam += ((idx === 0) ? "'?" : "\n\t\t\t+ '&" ) 
 					+ item.name.concat('=', "'")
-					+ " + encodeURIComponent(" + item.name + ")";
+					+ " + this.encodeParams(" + item.name + ")";
 			});
 
 			if (urlParam !== '') {
@@ -450,7 +478,7 @@ class SwaggerFileRepo {
 		// 'Foo=Value%201&Bar=Value%202"' => Ok
 		actionParams.map( (value: SwaggerPathActionParam) => {
 			if (value.inOut === "IN" && value.location === "formData") {
-				dataObject += ((dataObject === '') ? '"' : '\n\t\t\t+ "&') + value.name + '=" + encodeURIComponent(' + value.name + ')';
+				dataObject += ((dataObject === '') ? '"' : '\n\t\t\t+ "&') + value.name + '=" + this.encodeParams(' + value.name + ')';
 			}
 		});
 

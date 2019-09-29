@@ -33,6 +33,8 @@ class SwaggerFileMaker {
 					+ '*                                                                   *\r\n'
 					+ '* Optimized for use as part of the project                          *\r\n'
 					+ '* https://github.com/rafaelpassarela/empty_project_mysql_migrations *\r\n'
+					+ '*                                                                   *\r\n'
+					+ '* Generated at -> http://mrrafael.ca/swgen/                         *\r\n'
 					+ '********************************************************************/\r\n'
 					+ '\r\n';
 

@@ -1,11 +1,13 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
 * Sample Api by MrRafael.ca - v1                                    *
-* This client Api was generated on 27/09/2019 12:15:23              *
+* This client Api was generated on 27/09/2019 16:02:13              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
 * https://github.com/rafaelpassarela/empty_project_mysql_migrations *
+*                                                                   *
+* Generated at -> http://mrrafael.ca/swgen/                         *
 ********************************************************************/
 
 import { ApiConfig } from './api-config';
@@ -63,6 +65,24 @@ class ApiBase { //implements IApi<Values>{
 		return ApiRedirect.FOLLOW;
 	}
 
+	protected encodeParams(value: string | number | boolean | object) : string {
+		let strVal : string;
+		switch (typeof value) {
+			case "boolean":
+				strVal = (value === true) ? "true" : "false";
+				break;
+			case "number":
+				strVal = value.toString();
+				break;
+			case "object":
+				strVal = JSON.stringify(value as Object);
+			default:
+				strVal = value as string;
+				break;
+		}
+		return encodeURIComponent(strVal);
+	}
+
 	public setToken(value: string) {
 		this.authToken = value;
 	}
@@ -91,6 +111,16 @@ class ApiBase { //implements IApi<Values>{
 			console.log(requestMethod + " -> " + url);
 		}
 
+		let data: string | undefined = undefined;
+		if (data !== undefined) {
+			if ((typeof bodyData === "string" && bodyData.charAt(0) === "{")
+			 || (typeof bodyData !== "string")) {
+				data = JSON.stringify(bodyData);
+			} else {
+				data = bodyData;
+			}
+		}
+
 		return fetch(url, {
 			method: requestMethod,
 			mode: this.getMode(),
@@ -103,7 +133,7 @@ class ApiBase { //implements IApi<Values>{
 				"Authorization": "bearer " + (this.authToken || '')
 			},
 			redirect: this.getRedirect(),
-			body: ((bodyData != undefined) ? JSON.stringify(bodyData) : undefined)
+			body: data
 		})
 			.then(response => {
 				if (response.ok) {
