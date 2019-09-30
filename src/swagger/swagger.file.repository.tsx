@@ -100,7 +100,7 @@ class SwaggerFileRepo {
 		file.push('class ApiBase { //implements IApi<Values>{');
 		file.push('');
 		file.push('	private desenvMode : number = -1;');
-		file.push('	private authToken: string;');
+		file.push('	private authToken: string | undefined;');
 		file.push('');
 		file.push('	private translatePath(cmdName?: string, endPath?: string): string {');
 		file.push('		return ApiConfig.URL + this.getPath()');
@@ -154,7 +154,7 @@ class SwaggerFileRepo {
 		file.push('		return encodeURIComponent(strVal);');
 		file.push('	}');
 		file.push('');
-		file.push('	public setToken(value: string) {');
+		file.push('	public setToken(value: string | undefined) {');
 		file.push('		this.authToken = value;');
 		file.push('	}');
 		file.push('');	
@@ -183,7 +183,7 @@ class SwaggerFileRepo {
 		file.push('		}');
 		file.push('');
 		file.push('		let data: string | undefined = undefined;');
-		file.push('		if (data !== undefined) {');
+		file.push('		if (bodyData !== undefined) {');
 		file.push('			if ((typeof bodyData === "string" && bodyData.charAt(0) === "{")');
 		file.push('			 || (typeof bodyData !== "string")) {');
 		file.push('				data = JSON.stringify(bodyData);');
@@ -264,8 +264,7 @@ class SwaggerFileRepo {
 			let line: string;
 			item.fields.map( (field: SwaggerDefField) => {
 				if (item.extendsBase != true || (item.extendsBase === true && field.name.toUpperCase() !== 'ID')) {
-					line = '	' + field.name + ': ' + field.getType() + ';';
-
+					line = '	' + field.getFieldName() + ': ' + field.getType() + ';';
 					file.push(line);
 				}
 			});
@@ -366,6 +365,13 @@ class SwaggerFileRepo {
 			file.push("		return this." + value.proxyVarName + ";");
 			file.push("	}");
 		});
+		file.push('');
+		// set token for all proxies
+		file.push("	public setToken(value: string | undefined) {");
+		proxyList.map( (value: SwaggerProxyFile) => {
+			file.push("		this." + value.proxyVarName + ".setToken(value);");
+		});
+		file.push("	}");
 
 		file.push('}');
 		file.push('');
