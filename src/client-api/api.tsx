@@ -1,7 +1,7 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
 * Sample Api by MrRafael.ca - v1                                    *
-* This client Api was generated on 27/09/2019 16:02:13              *
+* This client Api was generated on 29/09/2019 22:12:38              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
@@ -17,10 +17,10 @@ import ApiTokenProxy from './api-token-proxy';
 
 class ApiHelper {
 
-	apiAccountProxy = new ApiAccountProxy();
-	apiRolesProxy = new ApiRolesProxy();
-	apiValuesProxy = new ApiValuesProxy();
-	apiTokenProxy = new ApiTokenProxy();
+	private apiAccountProxy = new ApiAccountProxy();
+	private apiRolesProxy = new ApiRolesProxy();
+	private apiValuesProxy = new ApiValuesProxy();
+	private apiTokenProxy = new ApiTokenProxy();
 
 	public Account() : ApiAccountProxy{
 		return this.apiAccountProxy;
@@ -33,6 +33,13 @@ class ApiHelper {
 	}
 	public token() : ApiTokenProxy{
 		return this.apiTokenProxy;
+	}
+
+	public setToken(value: string | undefined) {
+		this.apiAccountProxy.setToken(value);
+		this.apiRolesProxy.setToken(value);
+		this.apiValuesProxy.setToken(value);
+		this.apiTokenProxy.setToken(value);
 	}
 }
 

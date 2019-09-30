@@ -1,3 +1,5 @@
+import { swaggerHelper } from './swagger.helper';
+
 export class FormItem {
 	type: 'file' | 'text' | 'textarea';
 	name : string;
@@ -27,6 +29,10 @@ export class SwaggerDefField {
 	type: string;
 	subType: string; // for array or object type
 	required: boolean;
+
+	public getFieldName() : string {
+		return swaggerHelper.strRemoveAll(this.name, '.,;#@^');
+	}
 
 	public isIdField() : boolean {
 		return this.name.toUpperCase() === 'ID' 
