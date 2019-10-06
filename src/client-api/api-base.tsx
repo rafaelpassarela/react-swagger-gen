@@ -1,7 +1,7 @@
 /********************************************************************
 *            MrRafael.ca - Swagger Generator for React              *
 * Sample Api by MrRafael.ca - v1                                    *
-* This client Api was generated on 29/09/2019 22:12:38              *
+* This client Api was generated on 06/10/2019 20:48:13              *
 *                                          Do not change this file! *
 *                                                                   *
 * Optimized for use as part of the project                          *
@@ -111,27 +111,31 @@ class ApiBase { //implements IApi<Values>{
 			console.log(requestMethod + " -> " + url);
 		}
 
+		let contentType: string = "application/json";
 		let data: string | undefined = undefined;
-		if (data !== undefined) {
+		if (bodyData !== undefined) {
 			if ((typeof bodyData === "string" && bodyData.charAt(0) === "{")
 			 || (typeof bodyData !== "string")) {
 				data = JSON.stringify(bodyData);
 			} else {
-				data = bodyData;
+				data = bodyData.trim();
+				contentType = "application/x-www-form-urlencoded";
 			}
 		}
+
+		let header = {
+				Accept: "application/json",
+				"Content-Type": contentType + "; charset=utf-8",
+				"Access-Control-Allow-Origin": "*",
+				"Authorization": "bearer " + (this.authToken || "")
+			};
 
 		return fetch(url, {
 			method: requestMethod,
 			mode: this.getMode(),
 			cache: this.getCache(),
 			credentials: this.getCredentials(),
-			headers: {
-				Accept: "application/json",
-				"Content-Type": 'application/json; charset=utf-8',
-				"Access-Control-Allow-Origin": '*',
-				"Authorization": "bearer " + (this.authToken || '')
-			},
+			headers: header,
 			redirect: this.getRedirect(),
 			body: data
 		})
