@@ -13,7 +13,7 @@ export class FooterLinksConfig {
 	public static getItemsLeft() {
 
 		let items = [];
-		items.push(<div key="0"><small className="sixFive">&copy; 2019 <strong>Rafael Passarela</strong> - v1.6</small><br /></div>);
+		items.push(<div key="0"><small className="sixFive">&copy; 2019 <strong>Rafael Passarela</strong> - v2.0</small><br /></div>);
 		items.push(<FooterLinkComponent key="1" href="https://ca.linkedin.com/in/rafaelpassarela" img="ext_linked" title="LinkedIn" />);
 		items.push(<FooterLinkComponent key="2" href="https://www.twitter.com/rafaelpassarela" img="ext_twitter" title="Twitter" />);
 		items.push(<FooterLinkComponent key="3" href="https://github.com/rafaelpassarela" img="ext_git2" title="GitHub" />);

@@ -34,8 +34,11 @@ class SwaggerFileRepo {
 	public makeTypesFile() : SwaggerFile {
 		let file: string[] = [];
 
+		file.push('export class CustomErrorData extends Error {');
+		file.push('	data?: any;');
+		file.push('}');
 		file.push('export type ApiDataCallback = (data: any) => any;');
-		file.push('export type ApiErrorCallback = (error: Error) => any;');
+		file.push('export type ApiErrorCallback = (error: CustomErrorData) => any;');
 		file.push('');
 		file.push('export enum ApiMethod {');
 		file.push('	GET = "GET",');
@@ -89,7 +92,8 @@ class SwaggerFileRepo {
 		file.push('	ApiMethod,');
 		file.push('	ApiRedirect,');
 		file.push('	ApiDataCallback,');
-		file.push('	ApiErrorCallback ');
+		file.push('	ApiErrorCallback,');
+		file.push('	CustomErrorData');
 		file.push('} from \'./api-types\';');
 		file.push('');
 		file.push('// More about the Fetch default API');
@@ -182,7 +186,7 @@ class SwaggerFileRepo {
 		file.push('			console.log(requestMethod + " -> " + url);');
 		file.push('		}');
 		file.push('');
-		file.push('		let contentType: string = "application/json";');
+		file.push('		let contentType: string = "application/json; charset=utf-8";');
 		file.push('		let data: string | undefined = undefined;');
 		file.push('		if (bodyData !== undefined) {');
 		file.push('			if ((typeof bodyData === "string" && bodyData.charAt(0) === "{")');
@@ -194,13 +198,28 @@ class SwaggerFileRepo {
 		file.push('			}');
 		file.push('		}');
 		file.push('');
-		file.push('		let header = {');
+		file.push('		let header: any;');
+		file.push('		if (this.authToken === undefined || this.authToken === "") {');
+		file.push('			header = {');
 		file.push('				Accept: "application/json",');
-		file.push('				"Content-Type": contentType + "; charset=utf-8",');
+		file.push('				"Content-Type": contentType,');
+		file.push('				"Access-Control-Allow-Origin": "*"');
+		file.push('			};');
+		file.push('		} else {');
+		file.push('			header = {');
+		file.push('				Accept: "application/json",');
+		file.push('				"Content-Type": contentType,');
 		file.push('				"Access-Control-Allow-Origin": "*",');
 		file.push('				"Authorization": "bearer " + (this.authToken || "")');
 		file.push('			};');
+		file.push('		}');
 		file.push('');
+		file.push('// export interface IHttpResponse<T> extends Response {');
+		file.push('//   parsedBody?: T;');
+		file.push('// }');
+		file.push('//		let response: any;// IHttpResponse<T>;');
+		file.push('');
+		file.push('		let done: boolean = false;');
 		file.push('		return fetch(url, {');
 		file.push('			method: requestMethod,');
 		file.push('			mode: this.getMode(),');
@@ -212,6 +231,7 @@ class SwaggerFileRepo {
 		file.push('		})');
 		file.push('			.then(response => {');
 		file.push('				if (response.ok) {');
+		file.push('					done = true;');
 		file.push('					const contentType = response.headers.get("content-type");');
 		file.push('					if (contentType && contentType.indexOf("application/json") !== -1) {');
 		file.push('						return response.json();');
@@ -219,11 +239,38 @@ class SwaggerFileRepo {
 		file.push('						return response.text();');
 		file.push('					}');
 		file.push('				} else {');
-		file.push('					throw new Error(response.status + " - " + response.statusText);');
+		file.push('					let error = new CustomErrorData(response.status + " - " + response.statusText);');
+		file.push('					try {');
+		file.push('						response.json()');
+		file.push('							.then( (value: any) => {');
+		file.push('								done = true;');
+		file.push('								error.data = value;');
+		file.push('								if (error.data!.Message != undefined && error.data!.Message !== "") {');
+		file.push('									error.message += " - " + error.data.Message;');
+		file.push('								}');
+		file.push('								errorCallback(error);');
+		file.push('							})');
+		file.push('							.catch( (reason: any) => {');
+		file.push('								done = true;');
+		file.push('								error.data = undefined;');
+		file.push('								errorCallback(error);');
+		file.push('							});');
+		file.push('					} catch(e) {');
+		file.push('  						error.data = undefined;');
+		file.push('  						throw error;');
+		file.push('					}');
+		file.push('');
+		file.push('					return false;');
 		file.push('				}');
 		file.push('			})');
-		file.push('			.then(data => dataCallback(data))');
-		file.push('			.catch(error => errorCallback(error));');
+		file.push('			.then(data => {');
+		file.push('				if (done)');
+		file.push('					dataCallback(data);');
+		file.push('			})');
+		file.push('			.catch(error => {');
+		file.push('				if (done)');
+		file.push('					errorCallback(error);');
+		file.push('			});');
 		file.push('	}');
 		file.push('');
 		file.push('}');
@@ -340,6 +387,7 @@ class SwaggerFileRepo {
 		let file: string[] = [];
 		let proxyList: SwaggerProxyFile[] = [];
 
+		file.push("import { CustomErrorData } from './api-types';");
 		paths.map( (value: SwaggerPath) => {
 			let item = {
 				proxyFile: value.getProxyFileName(false),
@@ -382,6 +430,8 @@ class SwaggerFileRepo {
 		file.push('const Api = new ApiHelper();');
 		file.push('');
 		file.push('export default Api;');
+		file.push('');
+		file.push('export class ErrorData extends CustomErrorData {};');
 
 		return this.doMakeFile('api.tsx', file);
 	}
